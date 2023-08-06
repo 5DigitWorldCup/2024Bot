@@ -1,0 +1,10 @@
+﻿.idea/
+logs/
+
+**/*.idea/
+**/obj/
+**/bin/
+**/appsettings.json
+**/appsettings.Development.json
+.vs
+.vscode
