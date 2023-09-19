@@ -1,0 +1,9 @@
+{
+  "DiscordSettings": {
+    "Token": "Token",
+    "GuildId": "GuildId"
+  },
+  "ApiConfiguration": {
+    "ConnectionString": "ConnectionString"
+  }
+}

@@ -6,5 +6,6 @@ namespace Bot.Discord.Options
 	{
 		[MinLength(1)]
 		public string Token { get; set; } = null!;
+		public ulong GuildId { get; set; }
 	}
 }

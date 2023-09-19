@@ -8,4 +8,4 @@ appsettings.json
 appsettings.Development.json
 .vs
 .vscode
-
+*.csproj.user
