@@ -1,0 +1,100 @@
+import {
+  Client,
+  ClientOptions,
+  Collection,
+  REST,
+  Routes,
+} from "discord.js";
+import { ENV } from "env";
+import fs from "fs";
+import path from "path";
+import Command from "@interfaces/Command";
+import Event from "@interfaces/Event";
+import Logger from "./Logger";
+
+export default class ExtendedClient extends Client {
+  commands: Collection<string, Command> = new Collection();
+  logger = Logger(module);
+
+  constructor(options: ClientOptions) {
+    super(options);
+  }
+
+  async init(): Promise<void> {
+    this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "..", "commands"));
+    this.logger.info(`Collected ${this.commands.size} command modules`)
+    this.initEvents(path.join(__dirname, "..", "events"));
+  }
+
+  /**
+   * Creates a collection of command modules from `dir`
+   * @param dir directory to search for command modules in
+   */
+  static async loadCommands(dir: string): Promise<Collection<string, Command>> {
+    let commands = new Collection<string, Command>();
+    const files = fs.readdirSync(dir);
+
+    for (const f of files) {
+      const fpath = path.join(dir, f);
+
+      if (fs.lstatSync(fpath).isDirectory()) {
+        // Recursively load commands in subdirs
+        const nest = await this.loadCommands(fpath);
+        commands = commands.concat(nest);
+      } else {
+        // Push command data to the client
+        const cModule = await import(fpath);
+        const c: Command = cModule.default;
+
+        if (!c.data || !c.execute) continue;
+        c.filePath = fpath;
+        commands.set(c.data.name, c);
+      }
+    }
+    return commands;
+  }
+
+  /**
+   * Deploys application commands to the guild specified in env
+   */
+  static async deployCommands(): Promise<string> {
+    const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
+    const commands = await this.loadCommands(path.join(__dirname, "..", "commands"));
+
+    const data = commands.map(c => c.data.toJSON());
+
+    await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: data });
+    return `Successfully deployed ${data.length} application commands to Guild.`
+  }
+
+  /**
+   * Clears all application commands registered to the guild specified in env
+   */
+  static async clearCommands(): Promise<string> {
+    const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
+
+    await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: [] });
+    return `Successfully cleared all application commands from Guild.`
+  }
+
+  /**
+   * Subscribes to client events
+   * @param dir directory to search for event modules files in
+   */
+  private async initEvents(dir: string): Promise<void> {
+    const files = fs.readdirSync(dir);
+
+    for (const f of files) {
+      const fPath = path.join(dir, f);
+      const evModule = await import(fPath);
+      const ev: Event = evModule.default;
+
+      if (ev.once) {
+        this.once(ev.name, (...args) => ev.execute(...args));
+      } else {
+        this.on(ev.name, (...args) => ev.execute(...args));
+      }
+    }
+    this.logger.info("Now listening for events")
+  }
+}
