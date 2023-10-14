@@ -48,6 +48,7 @@ export default class ExtendedClient extends Client {
 
         if (!c.data || !c.execute) continue;
         c.filePath = fpath;
+        c.logger = Logger(fpath)
         commands.set(c.data.name, c);
       }
     }
@@ -60,7 +61,6 @@ export default class ExtendedClient extends Client {
   static async deployCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
     const commands = await this.loadCommands(path.join(__dirname, "..", "commands"));
-
     const data = commands.map(c => c.data.toJSON());
 
     await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: data });
@@ -88,6 +88,7 @@ export default class ExtendedClient extends Client {
       const fPath = path.join(dir, f);
       const evModule = await import(fPath);
       const ev: Event = evModule.default;
+      ev.logger = Logger(fPath)
 
       if (ev.once) {
         this.once(ev.name, (...args) => ev.execute(...args));

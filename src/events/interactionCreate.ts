@@ -1,9 +1,6 @@
 import ExtendedClient from "@common/ExtendedClient";
 import { BaseInteraction, Events } from "discord.js";
 import Event from "@interfaces/Event";
-import Logger from "@common/Logger";
-
-const log = Logger(module);
 
 export default <Event> {
   name: Events.InteractionCreate,
@@ -21,8 +18,11 @@ export default <Event> {
 
     try {
       command.execute(interaction, client);
+      this.logger!.info(
+        `Successfully executed application command [Name: ${command.data.name}]`
+      )
     } catch (e) {
-      log.error("an error?", e);
+      this.logger!.error("an error?", e);
     }
   }
 }

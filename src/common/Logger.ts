@@ -1,3 +1,4 @@
+import * as winston from "winston";
 import { createLogger, transports, format } from "winston";
 import Module from "module";
 import path from "path";
@@ -40,10 +41,22 @@ const logger = createLogger({
   ),
 });
 
+export type Logger = winston.Logger
+
 /**
- * Creates a child logger on a per module basis
+ * Works akin to a loggerFactory. Creates child loggers on a per module basis
+ * 
+ * @param arg Either the file path of the module, or the literal module object
+ * @returns A child logger formatted with the name of the module
  * @example
- * import Logger from "@common/Logger"
  * const log = Logger(module)
+ * const log = Logger(fPath)
  */
-export default (module: Module) => { return logger.child({ moduleName: path.parse(module.id).name })};
+function createChildLogger(arg: Module | string): Logger {
+  const toParse = (arg instanceof Module)
+    ? arg.id
+    : arg
+  return logger.child({ moduleName: path.parse(toParse).name })
+}
+
+export default createChildLogger
