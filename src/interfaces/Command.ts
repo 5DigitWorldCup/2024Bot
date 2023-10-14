@@ -32,5 +32,5 @@ export default interface Command {
   /**
    * Child logger specific to each command implementation
    */
-  logger?: Logger
+  logger: Logger
 }

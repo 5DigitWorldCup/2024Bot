@@ -7,6 +7,6 @@ export default <Command>{
     .setDescription("we hawt"),
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     await interaction.reply({ content: "we out here", ephemeral: true });
-    this.logger?.info("hello?")
+    this.logger.info("hello?")
   },
 }

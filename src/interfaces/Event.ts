@@ -31,5 +31,5 @@ export default interface Event {
   /**
    * Child logger specific to each event implementation
    */
-  logger?: Logger
+  logger: Logger
 }
