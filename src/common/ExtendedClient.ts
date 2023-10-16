@@ -6,10 +6,10 @@ import {
   Routes,
 } from "discord.js";
 import { ENV } from "env";
-import fs from "fs";
-import path from "path";
 import Command from "@interfaces/Command";
 import Event from "@interfaces/Event";
+import fs from "fs";
+import path from "path";
 import Logger from "./Logger";
 
 export default class ExtendedClient extends Client {
@@ -22,7 +22,7 @@ export default class ExtendedClient extends Client {
 
   async init(): Promise<void> {
     this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "..", "commands"));
-    this.logger.info(`Collected ${this.commands.size} command modules`)
+    this.logger.info(`Collected ${this.commands.size} command modules`);
     this.initEvents(path.join(__dirname, "..", "events"));
   }
 
@@ -47,8 +47,9 @@ export default class ExtendedClient extends Client {
         const c: Command = cModule.default;
 
         if (!c.data || !c.execute) continue;
+        // Attach filePath and Logger to each module
         c.filePath = fpath;
-        c.logger = Logger(fpath)
+        c.logger = Logger(fpath);
         commands.set(c.data.name, c);
       }
     }
@@ -64,7 +65,7 @@ export default class ExtendedClient extends Client {
     const data = commands.map(c => c.data.toJSON());
 
     await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: data });
-    return `Successfully deployed ${data.length} application commands to Guild.`
+    return `Successfully deployed ${data.length} application commands to Guild.`;
   }
 
   /**
@@ -74,7 +75,7 @@ export default class ExtendedClient extends Client {
     const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
 
     await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: [] });
-    return `Successfully cleared all application commands from Guild.`
+    return `Successfully cleared all application commands from Guild.`;
   }
 
   /**
@@ -88,7 +89,8 @@ export default class ExtendedClient extends Client {
       const fPath = path.join(dir, f);
       const evModule = await import(fPath);
       const ev: Event = evModule.default;
-      ev.logger = Logger(fPath)
+      // Attach logger to each event module
+      ev.logger = Logger(fPath);
 
       if (ev.once) {
         this.once(ev.name, (...args) => ev.execute(...args));
@@ -96,6 +98,6 @@ export default class ExtendedClient extends Client {
         this.on(ev.name, (...args) => ev.execute(...args));
       }
     }
-    this.logger.info("Now listening for events")
+    this.logger.info("Now listening for events");
   }
 }

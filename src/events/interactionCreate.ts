@@ -17,12 +17,12 @@ export default <Event> {
 
     if (!command) {
       this.logger.warn(`A command could not be found to execute ${formatLogArgs(interaction)}`);
-      return
+      return;
     }
 
     try {
-      await command.execute(interaction, client)
-      this.logger.info(`Successfully executed application command ${formatLogArgs(interaction)}`)
+      await command.execute(interaction, client);
+      this.logger.info(`Successfully executed application command ${formatLogArgs(interaction)}`);
     } catch (err) {
       this.logger.error(`Error executing application command ${formatLogArgs(interaction)}`, err);
       const func = interaction.deferred || interaction.replied ? interaction.followUp : interaction.reply;
@@ -34,8 +34,8 @@ export default <Event> {
 function formatLogArgs(interaction: CommandInteraction): string {
   const { commandName, user: { tag } } = interaction
   if (interaction.channel && interaction.inGuild()) {
-    return `[Name: ${commandName} | Caller: ${tag} | Channel: ${interaction.channel.name}]`
+    return `[Name: ${commandName} | Caller: ${tag} | Channel: ${interaction.channel.name}]`;
   } else {
-    return `[Name: ${commandName} | Caller: ${tag} | Channel: undefined]`
+    return `[Name: ${commandName} | Caller: ${tag} | Channel: undefined]`;
   }
 }
