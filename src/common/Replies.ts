@@ -1,4 +1,4 @@
-import { bold, EmbedBuilder, InteractionReplyOptions, PermissionsString } from "discord.js";
+import { bold, EmbedBuilder, InteractionReplyOptions, PermissionsString, inlineCode } from "discord.js";
 
 /**
  * Creates an embed builder formatted for an error message
@@ -27,5 +27,5 @@ export function errorMessage(error: string): InteractionReplyOptions {
  * @returns Formatted options 
  */
 export function appMissingPermsError(perms: PermissionsString[]): InteractionReplyOptions {
-  return errorMessage("I am missing permissions to use this command!\nPermission(s):\n".concat(perms.join(" ")));
+  return errorMessage("I am missing permissions to use this command!\nPermission(s):\n".concat(inlineCode(perms.join(" "))));
 }
