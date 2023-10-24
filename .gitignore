@@ -1,11 +1,51 @@
-﻿.idea/
-logs/
+﻿# Logs
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.eslintcache
 
-**/*.idea/
-**/obj/
-**/bin/
-appsettings.json
-appsettings.Development.json
+pids
+logs
+results
+tmp
+
+# Coverage reports
+coverage
+
+# API keys and secrets
+*.env*
+config.json
+
+# Dependency directory
+node_modules
+bower_components
+
+# Editors
+.idea
+*.iml
 .vs
 .vscode
 
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts files
+dist
+
+# Ignore yarn.lock
+yarn.lock
+
+# Husky
+_
