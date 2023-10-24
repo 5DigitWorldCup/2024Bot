@@ -2,7 +2,7 @@ import { Logger } from "@common/Logger";
 
 /**
  * Base client event interface
- * 
+ *
  * @example
  * export default <Event> {
  * name: Events.Ready,
@@ -16,10 +16,10 @@ export default interface Event {
   /**
    * Use discord.js `Events` enums
    */
-  name: string
+  name: string;
   /**
    * The function that will be invoked when an event is fired as `Event.name`
-   * 
+   *
    * @param args The expected arguments discord.js will pass to command
    */
   execute(...args: any): any;
@@ -31,5 +31,5 @@ export default interface Event {
   /**
    * Child logger specific to each event implementation
    */
-  logger: Logger
+  logger: Logger;
 }

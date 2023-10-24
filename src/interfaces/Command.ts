@@ -1,11 +1,11 @@
 import { SlashCommandBuilder, ContextMenuCommandBuilder } from "discord.js";
 import { Logger } from "@common/Logger";
 
-type CommandData = SlashCommandBuilder | ContextMenuCommandBuilder
+type CommandData = SlashCommandBuilder | ContextMenuCommandBuilder;
 
 /**
  * Base application command interface
- * 
+ *
  * @example
  * export default <Command> {
  *  data: ...,
@@ -18,10 +18,10 @@ export default interface Command {
   /**
    * This will be any type of discord application command builder instance
    */
-  data: CommandData
+  data: CommandData;
   /**
    * The function that will be invoked when trying to execute the body of an application command
-   * 
+   *
    * @param args The expected arguments discord.js will pass to command
    */
   execute(...args: any): any;
@@ -32,5 +32,5 @@ export default interface Command {
   /**
    * Child logger specific to each command implementation
    */
-  logger: Logger
+  logger: Logger;
 }

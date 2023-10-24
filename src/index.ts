@@ -1,6 +1,6 @@
 import { GatewayIntentBits } from "discord.js";
 import ExtendedClient from "@common/ExtendedClient";
-import "env";
+import "config";
 
 const client = new ExtendedClient({
   intents: [GatewayIntentBits.Guilds],

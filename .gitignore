@@ -13,6 +13,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+.eslintcache
 
 pids
 logs
@@ -24,6 +25,7 @@ coverage
 
 # API keys and secrets
 *.env*
+config.json
 
 # Dependency directory
 node_modules
@@ -40,7 +42,10 @@ bower_components
 Thumbs.db
 
 # Ignore built ts files
-dist/**/*
+dist
 
 # Ignore yarn.lock
 yarn.lock
+
+# Husky
+_

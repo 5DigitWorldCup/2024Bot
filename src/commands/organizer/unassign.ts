@@ -1,5 +1,3 @@
 import Command from "@interfaces/Command";
 
-export default <Partial<Command>> {
-    
-}
+export default <Partial<Command>>{};

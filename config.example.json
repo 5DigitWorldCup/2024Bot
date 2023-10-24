@@ -1,0 +1,16 @@
+{
+  "Bot": {
+    "Token": "{Token}",
+    "ClientId": "{UserId}",
+    "GuildId": "{GuildId}"
+  },
+  "Organizer": {
+    "Whitelist": [
+      "{UserId}"
+    ],
+    "Role": "{RoleId}"
+  },
+  "Registrant": {
+    "Role": "{RoleId}"
+  }
+}

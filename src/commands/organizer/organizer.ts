@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from "discord.js";
 import { appMissingPermsError, errorMessage } from "@common/Replies";
-import { OrganizerAccessIds } from "@common/Constants";
+import { CONFIG } from "config";
 import Command from "@interfaces/Command";
 import ExtendedClient from "@common/ExtendedClient";
 
@@ -29,30 +29,32 @@ import ExtendedClient from "@common/ExtendedClient";
   [  ] Set "organizer flag via api call"
 */
 
-export default <Command> {
+export default <Command>{
   data: new SlashCommandBuilder()
     .setName("organizer")
-    .setDescription("Set a user as a country organizer")
+    .setDescription("Assign or unassign a registrant as a country organizer")
     .setDefaultMemberPermissions(0)
-    .addSubcommand(s => s
+    .addSubcommand(s =>
+      s
         .setName("assign")
-        .setDescription("Assign the target user to be a country organizer")
-        .addUserOption(o => o.setName("user").setDescription("Target user").setRequired(true))
-      )
-    .addSubcommand(s => s
+        .setDescription("Assign a registrant to be a country organizer")
+        .addUserOption(o => o.setName("user").setDescription("Target user").setRequired(true)),
+    )
+    .addSubcommand(s =>
+      s
         .setName("unassign")
-        .setDescription("Unassign the target user from being a country organizer")
-        .addUserOption(o => o.setName("user").setDescription("Target user").setRequired(true))
-      ),
+        .setDescription("Unassign a registrant from being a country organizer")
+        .addUserOption(o => o.setName("user").setDescription("Target user").setRequired(true)),
+    ),
   async execute(interaction: ChatInputCommandInteraction, client: ExtendedClient): Promise<void> {
     // Make sure we have permission to manage roles
-    if (!interaction.appPermissions?.has(PermissionFlagsBits.ManageRoles)) {
+    if (!interaction.appPermissions?.has(PermissionFlagsBits.ManageRoles, true)) {
       this.logger.error(`App missing permissions [Command: ${this.data.name} | Permissions: ManageRoles]`);
       await interaction.reply(appMissingPermsError(["ManageRoles"]));
       return;
     }
     // Only hardcoded user ids will have access to this command
-    if (!OrganizerAccessIds.includes(interaction.user.id)) {
+    if (!CONFIG.Organizer.Whitelist.includes(interaction.user.id)) {
       this.logger.warn(`User missing permission [Command: ${this.data.name} | User: ${interaction.user.tag}]`);
       await interaction.reply(errorMessage("You do not have permission to use this command!"));
       return;
@@ -72,5 +74,5 @@ export default <Command> {
       await interaction.reply(errorMessage("This command hasn't been implemented yet!"));
       return;
     }
-  }
-}
+  },
+};

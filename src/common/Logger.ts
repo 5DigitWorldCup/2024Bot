@@ -11,7 +11,7 @@ import path from "path";
 const seperateModName = format(info => {
   info.moduleName = info.metadata.moduleName;
   delete info.metadata.moduleName;
-  return info
+  return info;
 });
 
 const logger = createLogger({
@@ -27,21 +27,20 @@ const logger = createLogger({
     new transports.Console({
       format: format.combine(
         format.printf(({ timestamp, level, message, moduleName, metadata }) => {
-          // 
-          const mdata = Object.keys(metadata).length === 0 ? "" : JSON.stringify(metadata)
+          const mdata = Object.keys(metadata).length === 0 ? "" : JSON.stringify(metadata);
           return `[${timestamp} ${level.toUpperCase()}] <${moduleName}> ${message} ${mdata}`;
         }),
       ),
     }),
   ],
-  format: format.combine(format.metadata(), format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), seperateModName()),
+  format: format.combine(format.metadata(), format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), seperateModName()),
 });
 
 export type Logger = winston.Logger;
 
 /**
  * Works akin to a loggerFactory. Creates child loggers on a per module basis
- * 
+ *
  * @param arg Either the file path of the module, or the literal module object
  * @returns A child logger formatted with the name of the module
  * @example
@@ -49,8 +48,6 @@ export type Logger = winston.Logger;
  * const log = Logger(fPath)
  */
 export default function createChildLogger(arg: Module | string): Logger {
-  const toParse = (arg instanceof Module)
-    ? arg.id
-    : arg;
+  const toParse = arg instanceof Module ? arg.id : arg;
   return logger.child({ moduleName: path.parse(toParse).name });
 }

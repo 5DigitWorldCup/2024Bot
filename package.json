@@ -15,10 +15,13 @@
   "main": "./dist/index.js",
   "exports": "./dist/index.js",
   "scripts": {
+    "prepare": "husky install",
     "prebuild": "rimraf dist",
     "build": "tsc",
+    "format": "prettier --write ./src/",
+    "lint": "eslint --cache --fix ./src/",
     "start": "node -r tsconfg-paths/register .",
-    "dev": "cross-env NODE_ENV=development ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
+    "dev": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:nm": "nodemon --config nodemon.json src/index.ts",
     "deploy": "node -r tsconfig-paths/register dist/deploy-commands.js",
     "clear": "node -r tsconfig-paths/register dist/clear-commands.js"
@@ -28,20 +31,26 @@
   },
   "dependencies": {
     "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1",
-    "winston": "^3.11.0",
-    "zod": "^3.22.4"
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/node": "^20.8.5",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "cross-env": "^7.0.3",
     "eslint": "^8.51.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.1",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --cache --fix",
+      "prettier --write ./src/"
+    ]
   }
 }

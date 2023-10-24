@@ -1,11 +1,5 @@
-import {
-  Client,
-  ClientOptions,
-  Collection,
-  REST,
-  Routes,
-} from "discord.js";
-import { ENV } from "env";
+import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
+import { CONFIG } from "config";
 import Command from "@interfaces/Command";
 import Event from "@interfaces/Event";
 import fs from "fs";
@@ -57,24 +51,24 @@ export default class ExtendedClient extends Client {
   }
 
   /**
-   * Deploys application commands to the guild specified in env
+   * Deploys application commands to the guild specified in config
    */
   static async deployCommands(): Promise<string> {
-    const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
+    const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
     const commands = await this.loadCommands(path.join(__dirname, "..", "commands"));
     const data = commands.map(c => c.data.toJSON());
 
-    await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: data });
+    await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: data });
     return `Successfully deployed ${data.length} application commands to Guild.`;
   }
 
   /**
-   * Clears all application commands registered to the guild specified in env
+   * Clears all application commands registered to the guild specified in config
    */
   static async clearCommands(): Promise<string> {
-    const rest = new REST({ version: "10" }).setToken(ENV.DISCORD_TOKEN);
+    const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
 
-    await rest.put(Routes.applicationGuildCommands(ENV.CLIENT_ID, ENV.GUILD_ID), { body: [] });
+    await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: [] });
     return `Successfully cleared all application commands from Guild.`;
   }
 
