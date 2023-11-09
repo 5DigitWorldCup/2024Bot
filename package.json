@@ -12,19 +12,19 @@
   "bugs": {
     "url": "https://github.com/5DigitWorldCup/2024Bot/issues"
   },
-  "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+  "main": "./dist/src/index.js",
+  "exports": "./dist/src/index.js",
   "scripts": {
     "prepare": "husky install",
     "prebuild": "rimraf dist",
     "build": "tsc",
     "format": "prettier --write ./src/",
     "lint": "eslint --cache --fix ./src/",
-    "start": "node -r tsconfg-paths/register .",
+    "start": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register .",
     "dev": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:nm": "nodemon --config nodemon.json src/index.ts",
-    "deploy": "node -r tsconfig-paths/register dist/deploy-commands.js",
-    "clear": "node -r tsconfig-paths/register dist/clear-commands.js"
+    "deploy": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/deploy-commands.js",
+    "clear": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/clear-commands.js"
   },
   "engines": {
     "node": ">=16.0.0"
