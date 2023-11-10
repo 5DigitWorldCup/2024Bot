@@ -1,0 +1,34 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        node-version: [ "16", "18" ]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: ations/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Setup Node
+      run: npm ci
+
+    - name: Build
+      run: |
+      npm run format
+      npm run lint
+      npm run build
+
+    - name: Run Tests
+      run: npm test
