@@ -1,8 +1,8 @@
 import { Events } from "discord.js";
-import ExtendedClient from "@common/ExtendedClient";
-import Event from "@interfaces/Event";
+import ExtendedClient from "discord/ExtendedClient";
+import DiscordEvent from "discord/interfaces/DiscordEvent";
 
-export default <Event>{
+export default <DiscordEvent>{
   name: Events.ClientReady,
   once: true,
   execute(client: ExtendedClient) {

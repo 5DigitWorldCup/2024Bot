@@ -1,23 +1,28 @@
 import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
 import { CONFIG } from "config";
-import Command from "@interfaces/Command";
-import Event from "@interfaces/Event";
+import Command from "@discord/interfaces/Command";
+import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
 import path from "path";
-import Logger from "./Logger";
+import Logger from "@common/Logger";
+import ApiWorker from "@api/ApiWorker";
 
 export default class ExtendedClient extends Client {
   commands: Collection<string, Command> = new Collection();
   logger = Logger(module);
+  apiWorker: ApiWorker;
 
   constructor(options: ClientOptions) {
     super(options);
+    this.apiWorker = new ApiWorker();
   }
 
   async init(): Promise<void> {
-    this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "..", "commands"));
+    this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "commands"));
     this.logger.info(`Collected ${this.commands.size} command modules`);
-    this.initEvents(path.join(__dirname, "..", "events"));
+    this.bindEvents(path.join(__dirname, "events"));
+
+    await this.apiWorker.init();
   }
 
   /**
@@ -76,20 +81,20 @@ export default class ExtendedClient extends Client {
    * Subscribes to client events
    * @param dir directory to search for event modules files in
    */
-  private async initEvents(dir: string): Promise<void> {
+  private async bindEvents(dir: string): Promise<void> {
     const files = fs.readdirSync(dir);
 
     for (const f of files) {
       const fPath = path.join(dir, f);
       const evModule = await import(fPath);
-      const ev: Event = evModule.default;
+      const ev: DiscordEvent = evModule.default;
       // Attach logger to each event module
       ev.logger = Logger(fPath);
 
       if (ev.once) {
-        this.once(ev.name, (...args) => ev.execute(...args));
+        this.once(ev.name.toString(), (...args) => ev.execute(...args));
       } else {
-        this.on(ev.name, (...args) => ev.execute(...args));
+        this.on(ev.name.toString(), (...args) => ev.execute(...args));
       }
     }
     this.logger.info("Now listening for events");
