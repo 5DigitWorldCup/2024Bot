@@ -8,6 +8,9 @@ import Logger from "@common/Logger";
 import ApiWorker from "@api/ApiWorker";
 
 export default class ExtendedClient extends Client {
+  /**
+   * Discord `Collection` of <`Command Name`, `Command Data`>
+   */
   commands: Collection<string, Command> = new Collection();
   logger = Logger(module);
   apiWorker: ApiWorker;
@@ -19,8 +22,7 @@ export default class ExtendedClient extends Client {
 
   async init(): Promise<void> {
     this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "commands"));
-    this.logger.info(`Collected ${this.commands.size} command modules`);
-    this.bindEvents(path.join(__dirname, "events"));
+    await this.bindEvents(path.join(__dirname, "events"));
 
     await this.apiWorker.init();
   }
@@ -89,7 +91,7 @@ export default class ExtendedClient extends Client {
       const evModule = await import(fPath);
       const ev: DiscordEvent = evModule.default;
       // Attach logger to each event module
-      ev.logger = Logger(fPath);
+      ev.logger = this.logger.child({ moduleName: `ExtendedClient:${ev.name}` });
 
       if (ev.once) {
         this.once(ev.name.toString(), (...args) => ev.execute(...args));
