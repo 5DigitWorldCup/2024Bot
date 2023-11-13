@@ -12,19 +12,19 @@
   "bugs": {
     "url": "https://github.com/5DigitWorldCup/2024Bot/issues"
   },
-  "main": "./dist/index.js",
-  "exports": "./dist/index.js",
+  "main": "./dist/src/index.js",
+  "exports": "./dist/src/index.js",
   "scripts": {
     "prepare": "husky install",
     "prebuild": "rimraf dist",
     "build": "tsc",
     "format": "prettier --write ./src/",
     "lint": "eslint --cache --fix ./src/",
-    "start": "node -r tsconfg-paths/register .",
+    "start": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register .",
     "dev": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:nm": "nodemon --config nodemon.json src/index.ts",
-    "deploy": "node -r tsconfig-paths/register dist/deploy-commands.js",
-    "clear": "node -r tsconfig-paths/register dist/clear-commands.js"
+    "deploy": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/deploy-commands.js",
+    "clear": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/clear-commands.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -34,15 +34,18 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.8",
     "@types/node": "^20.8.5",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "cross-env": "^7.0.3",
     "eslint": "^8.51.0",
     "husky": "^8.0.3",
+    "jest": "^29.7.0",
     "lint-staged": "^15.0.1",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
