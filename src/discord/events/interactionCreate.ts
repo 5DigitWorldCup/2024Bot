@@ -1,9 +1,9 @@
 import { BaseInteraction, ChatInputCommandInteraction, ContextMenuCommandInteraction, Events } from "discord.js";
-import { errorMessage } from "@common/Replies";
-import Event from "@interfaces/Event";
-import ExtendedClient from "@common/ExtendedClient";
+import { errorMessage } from "@discord/util/Replies";
+import DiscordEvent from "@discord/interfaces/DiscordEvent";
+import ExtendedClient from "@discord/ExtendedClient";
 
-export default <Event>{
+export default <DiscordEvent>{
   name: Events.InteractionCreate,
   once: false,
   async execute(interaction: BaseInteraction): Promise<void> {

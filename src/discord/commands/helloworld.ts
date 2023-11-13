@@ -1,4 +1,4 @@
-import Command from "@interfaces/Command";
+import Command from "discord/interfaces/Command";
 import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
 
 export default <Command>{

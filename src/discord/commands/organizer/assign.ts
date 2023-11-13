@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import Command from "@interfaces/Command";
-import { errorMessage } from "@common/Replies";
+import Command from "discord/interfaces/Command";
+import { errorMessage } from "discord/util/Replies";
 
 export default <Partial<Command>>{
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {

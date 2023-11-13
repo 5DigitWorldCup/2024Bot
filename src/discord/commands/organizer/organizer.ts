@@ -1,8 +1,8 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from "discord.js";
-import { appMissingPermsError, errorMessage } from "@common/Replies";
+import { appMissingPermsError, errorMessage } from "discord/util/Replies";
 import { CONFIG } from "config";
-import Command from "@interfaces/Command";
-import ExtendedClient from "@common/ExtendedClient";
+import Command from "discord/interfaces/Command";
+import ExtendedClient from "discord/ExtendedClient";
 
 /*
   Flow ->
