@@ -4,6 +4,10 @@
     "ClientId": "{UserId}",
     "GuildId": "{GuildId}"
   },
+  "Api": {
+    "BaseUrl": "127.0.0.1:8000",
+    "PSK": "DONOTUSEINPRODUCTIONDONOTUSEINPRODUCTIONDONOTUSEINPRODUCTION"
+  },
   "Organizer": {
     "Whitelist": [
       "{UserId}"

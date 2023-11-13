@@ -1,5 +1,5 @@
 import { GatewayIntentBits } from "discord.js";
-import ExtendedClient from "@common/ExtendedClient";
+import ExtendedClient from "discord/ExtendedClient";
 import { CONFIG } from "config";
 
 const client = new ExtendedClient({
