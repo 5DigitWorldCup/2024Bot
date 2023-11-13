@@ -1,22 +1,6 @@
 import { Logger } from "@common/Logger";
 
-/**
- * Base client event interface
- *
- * @example
- * export default <Event> {
- * name: Events.Ready,
- * once: true,
- * async execute(client: ExtendedClient){
- *  ...
- *  }
- * }
- */
-export default interface Event {
-  /**
-   * Use discord.js `Events` enums
-   */
-  name: string;
+export default interface BaseEvent {
   /**
    * The function that will be invoked when an event is fired as `Event.name`
    *

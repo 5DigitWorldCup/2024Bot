@@ -6,6 +6,10 @@ interface Config {
     ClientId: string;
     GuildId: string;
   };
+  Api: {
+    BaseUrl: string;
+    PSK: string;
+  };
   Organizer: {
     Whitelist: UserResolvable[];
     Role: RoleResolvable;

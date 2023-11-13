@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "discord.js": "^14.13.0",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "ws": "^8.14.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.8",
