@@ -4,7 +4,8 @@ import ApiWorker from "@api/ApiWorker";
 export default <ApiEvent>{
   name: "message",
   once: false,
-  execute(worker: ApiWorker, ev) {
-    this.logger.info("Recieved message from websocket", ev);
+  execute(worker: ApiWorker, ev: string) {
+    this.logger.info("Recieved message from websocket");
+    this.logger.info(ev);
   },
 };

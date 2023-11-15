@@ -1,23 +1,46 @@
-import { UserResolvable, RoleResolvable } from "discord.js";
-
 interface Config {
   Bot: {
+    /**
+     * Bot token
+     */
     Token: string;
+    /**
+     * Bot client id
+     */
     ClientId: string;
+    /**
+     * Home guild id
+     */
     GuildId: string;
   };
   Api: {
+    /**
+     * Base uri of the api
+     */
     BaseUrl: string;
+    /**
+     * Pre-shared authentication key for non-safe methods
+     */
     PSK: string;
   };
   Organizer: {
-    Whitelist: UserResolvable[];
-    Role: RoleResolvable;
+    /**
+     * Array of user ids allowed to use the /organizer command
+     */
+    Whitelist: string[];
+    /**
+     * Organizer role id
+     */
+    Role: string;
   };
   Registrant: {
-    Role: RoleResolvable;
+    /**
+     * Registrant role id
+     */
+    Role: string;
   };
 }
 
 import * as cfg from "../config.json";
-export const CONFIG: Config = cfg;
+const CONFIG: Config = cfg;
+export default CONFIG;
