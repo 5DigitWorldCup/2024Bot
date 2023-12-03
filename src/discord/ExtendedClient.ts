@@ -1,5 +1,5 @@
 import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
-import { CONFIG } from "config";
+import CONFIG from "config";
 import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
@@ -62,7 +62,7 @@ export default class ExtendedClient extends Client {
    */
   static async deployCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
-    const commands = await this.loadCommands(path.join(__dirname, "..", "commands"));
+    const commands = await this.loadCommands(path.join(__dirname, "commands"));
     const data = commands.map(c => c.data.toJSON());
 
     await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: data });

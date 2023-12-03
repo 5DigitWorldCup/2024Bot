@@ -23,8 +23,8 @@
     "start": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register .",
     "dev": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:nm": "nodemon --config nodemon.json src/index.ts",
-    "deploy": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/deploy-commands.js",
-    "clear": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/clear-commands.js"
+    "deploy": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/discord/deploy-commands.js",
+    "clear": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/discord/clear-commands.js"
   },
   "engines": {
     "node": ">=16.0.0"
