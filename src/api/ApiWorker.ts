@@ -64,6 +64,7 @@ export default class ApiWorker {
   static async updateOrganizer(discordId: string, isOrgaizer: boolean): Promise<boolean> {
     try {
       const res = (await this.sendRequest("PATCH", `/registrants/${discordId}/`, {
+        // eslint-disable-next-line camelcase
         is_organizer: isOrgaizer,
       })) as TournamentPlayer;
       return res.is_organizer == isOrgaizer ? true : false;
