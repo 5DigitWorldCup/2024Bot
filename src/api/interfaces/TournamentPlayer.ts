@@ -1,8 +1,6 @@
-export default interface TournamentPlayer {
-  discord_user_id: string;
-  osu_user_id: string;
-  osu_username: string;
-  flag: string;
-  is_organizer: boolean;
-  action: string;
+import WsResponse from "./WSResponse";
+
+export default interface TournamentPlayer extends WsResponse {
+  user_id: number;
+  discord_username: string;
 }

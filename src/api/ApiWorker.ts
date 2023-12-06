@@ -5,20 +5,19 @@ import CONFIG from "config";
 import { WebSocket } from "ws";
 import ApiEvent from "@api/interfaces/ApiEvent";
 import TournamentPlayer from "@api/interfaces/TournamentPlayer";
+import ExtendedClient from "@discord/ExtendedClient";
 
 export default class ApiWorker {
+  readonly client: ExtendedClient;
   readonly logger = Logger(module);
   /**
    * Exponential scalar for reconnection timeout
    */
   nReconAttempts = 0;
-  /**
-   * Delay for periodically refreshing the websocket connection
-   */
-  readonly refreshDelay = 600000;
   ws: WebSocket;
 
-  constructor() {
+  constructor(client: ExtendedClient) {
+    this.client = client;
     this.ws = this.createWebsocket();
   }
 
@@ -27,7 +26,7 @@ export default class ApiWorker {
   }
 
   /**
-   * @returns A fresh `WebSocket` connection
+   * Creates a fresh `WebSocket` connection
    */
   createWebsocket(): WebSocket {
     return new WebSocket(`ws://${CONFIG.Api.BaseUrl}/ws/discord/`, { auth: `Bearer ${CONFIG.Api.PSK}` });
@@ -57,6 +56,14 @@ export default class ApiWorker {
   }
 
   /**
+   * Queries the Api for all registrants for batch updates
+   * @returns An array of TournamentPlayer
+   */
+  static async getAllRegistrants(): Promise<TournamentPlayer[]> {
+    return (await this.sendRequest("GET", "/registrants/")) as TournamentPlayer[];
+  }
+
+  /**
    * Update a registrant's organizer status
    * @param discordId Discord Id of the target user
    * @param isOrgaizer If the user will be an organizer or not
@@ -81,16 +88,18 @@ export default class ApiWorker {
    * @param data What data to send as body
    * @returns Parsed json from response body
    */
-  static async sendRequest(method: string, endpoint: string, data: object): Promise<any> {
-    const res = await fetch(`http://${CONFIG.Api.BaseUrl}${endpoint}`, {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${CONFIG.Api.PSK}`,
-      },
-      body: JSON.stringify(data),
-    });
+  static async sendRequest(method: string, endpoint: string, data: object = {}): Promise<any> {
+    const reqHeaders = new Headers();
+    reqHeaders.append("Content-Type", "application/json");
+    reqHeaders.append("Authorization", `Token ${CONFIG.Api.PSK}`);
 
+    const reqInfo: Partial<RequestInit> = {
+      method: method,
+      headers: reqHeaders,
+    };
+    if (Object.keys(data).length !== 0) reqInfo.body = JSON.stringify(data);
+
+    const res = await fetch(`http://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
     if (!res.ok) {
       Logger(module).error(
         `Bad API response [Method: ${method} | Endpoint: ${endpoint} | Data: ${JSON.stringify(data)}]`,

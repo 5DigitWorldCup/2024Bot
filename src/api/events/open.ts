@@ -8,5 +8,7 @@ export default <ApiEvent>{
     this.logger.info("Connection to websocket opened");
     // Reset the connection attempts upon success
     apiWorker.nReconAttempts = 0;
+    // Sync all users to account for dropped data
+    apiWorker.client.autoNameService.syncAllUsers();
   },
 };
