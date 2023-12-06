@@ -6,18 +6,21 @@ import fs from "fs";
 import path from "path";
 import Logger from "@common/Logger";
 import ApiWorker from "@api/ApiWorker";
+import AutoNameService from "@discord/services/AutoNameService";
 
 export default class ExtendedClient extends Client {
   /**
    * Discord `Collection` of <`Command Name`, `Command Data`>
    */
   commands: Collection<string, Command> = new Collection();
-  logger = Logger(module);
-  apiWorker: ApiWorker;
+  readonly logger = Logger(module);
+  readonly apiWorker: ApiWorker;
+  readonly autoNameService: AutoNameService;
 
   constructor(options: ClientOptions) {
     super(options);
-    this.apiWorker = new ApiWorker();
+    this.apiWorker = new ApiWorker(this);
+    this.autoNameService = new AutoNameService(this);
   }
 
   async init(): Promise<void> {

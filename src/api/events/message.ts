@@ -1,11 +1,20 @@
 import ApiEvent from "@api/interfaces/ApiEvent";
 import ApiWorker from "@api/ApiWorker";
+import WsResponse from "@api/interfaces/WsResponse";
 
 export default <ApiEvent>{
   name: "message",
   once: false,
-  execute(worker: ApiWorker, ev: string) {
-    this.logger.info("Recieved message from websocket");
-    this.logger.info(ev);
+  async execute(worker: ApiWorker, ev) {
+    const data = JSON.parse(ev) as { message: string; level?: any };
+    const player = JSON.parse(data.message) as WsResponse;
+    try {
+      await worker.client.autoNameService.updateOneUser(player);
+    } catch (err) {
+      this.logger.error("Unnexpected error with AutoNameService:");
+      if (err instanceof Error) {
+        this.logger.error(err.message);
+      }
+    }
   },
 };
