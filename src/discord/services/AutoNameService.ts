@@ -1,6 +1,6 @@
 import ApiWorker from "@api/ApiWorker";
 import TournamentPlayer from "@api/interfaces/TournamentPlayer";
-import WsResponse from "@api/interfaces/WSResponse";
+import WsResponse from "@api/interfaces/WsResponse";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
 import CONFIG from "config";

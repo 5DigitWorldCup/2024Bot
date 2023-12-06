@@ -1,6 +1,6 @@
 import ApiEvent from "@api/interfaces/ApiEvent";
 import ApiWorker from "@api/ApiWorker";
-import WsResponse from "@api/interfaces/WSResponse";
+import WsResponse from "@api/interfaces/WsResponse";
 
 export default <ApiEvent>{
   name: "message",

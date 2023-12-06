@@ -1,4 +1,4 @@
-import WsResponse from "./WSResponse";
+import WsResponse from "./WsResponse";
 
 export default interface TournamentPlayer extends WsResponse {
   user_id: number;
