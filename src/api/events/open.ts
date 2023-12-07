@@ -9,6 +9,8 @@ export default <ApiEvent>{
     // Reset the connection attempts upon success
     apiWorker.nReconAttempts = 0;
     // Sync all users to account for dropped data
-    apiWorker.client.autoNameService.syncAllUsers();
+    if (apiWorker.client.isReady()) {
+      apiWorker.client.autoNameService.syncAllUsers();
+    }
   },
 };

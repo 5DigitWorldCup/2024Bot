@@ -8,5 +8,6 @@ export default <DiscordEvent>{
   execute(client: ExtendedClient) {
     this.logger.info(`Logged in as ${client.user?.tag}`);
     client.application?.fetch();
+    client.autoNameService.syncAllUsers();
   },
 };
