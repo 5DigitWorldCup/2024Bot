@@ -3,31 +3,6 @@ import { appMissingPermsError, errorMessage } from "discord/util/Replies";
 import CONFIG from "config";
 import Command from "discord/interfaces/Command";
 
-/*
-  Flow ->
-
-  [ X ] Check command caller for required staff role
-    - Alternatively make the command disabled for @everyone and have an admin manually
-      create role exceptions for staff that would be using the command. That or
-      have a hardcoded configured role id that will be allowed. I think the former is easier
-
-  [  ] Verify target user is registered
-    - Via registered role, api, or both? Probably api for certainty
-
-  [  ] Check if anyone of same country flag is organizer?
-    - This would require osu!api integration and depends on whether we
-      want to hard restrict each country to one organizer or not
-
-  [  ] "Are you sure?" (Yes / No / Cancel) confirmation via modal?
-    - Just to be safe + easy to implement
-
-  [  ] Assign "organizer" role
-    - This role id should either be hardcoded via config or stored somewhere in the api
-      - Api could always hold a config file or json object for the bot?
-
-  [  ] Set "organizer flag via api call"
-*/
-
 export default <Command>{
   data: new SlashCommandBuilder()
     .setName("organizer")

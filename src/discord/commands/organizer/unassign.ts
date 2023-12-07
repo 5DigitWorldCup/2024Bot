@@ -14,28 +14,26 @@ export default <Partial<Command>>{
     // Set organizer server-side
     const apiOk = await ApiWorker.updateOrganizer(member.id, false);
     // Set organizer role discord-side
-    if (apiOk) {
-      // Grab organizer discord role
-      const organizerRole = await interaction.guild!.roles.fetch(CONFIG.Organizer.Role, { cache: true });
-      if (!organizerRole) {
-        await interaction.reply(
-          errorMessage(
-            `Failed to find the ${codeBlock("organizer")} discord role!\nTarget user ${userMention(
-              member.id,
-            )} is likely flagged as a non-organizer in the database. Tell them to check on the website. If so: it is safe to remove the discord role manually`,
-          ),
-        );
-        return;
-      }
-      // Set the role
-      await member.roles.remove(organizerRole);
-      await interaction.reply(
-        successMessage(`Successfully removed organizer permissions from ${userMention(member.id)}`, true),
-      );
-      return;
-    } else {
+    if (!apiOk) {
       await interaction.reply(errorMessage("Failed to remove organizer from user server-side!"));
       return;
     }
+    // Grab organizer discord role
+    const organizerRole = await interaction.guild!.roles.fetch(CONFIG.Organizer.Role, { cache: true });
+    if (!organizerRole) {
+      await interaction.reply(
+        errorMessage(
+          `Failed to find the ${codeBlock("organizer")} discord role!\nTarget user ${userMention(
+            member.id,
+          )} is likely flagged as a non-organizer in the database. Tell them to check on the website. If so: it is safe to remove the discord role manually`,
+        ),
+      );
+      return;
+    }
+    // Set the role
+    await member.roles.remove(organizerRole);
+    await interaction.reply(
+      successMessage(`Successfully removed organizer permissions from ${userMention(member.id)}`, true),
+    );
   },
 };
