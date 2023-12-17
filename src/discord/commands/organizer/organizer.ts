@@ -19,7 +19,8 @@ export default <Command>{
         .setName("unassign")
         .setDescription("Unassign a registrant from being a country organizer")
         .addUserOption(o => o.setName("user").setDescription("Target user").setRequired(true)),
-    ),
+    )
+    .addSubcommand(s => s.setName("sync").setDescription("Syncs users with organizer in the Discord to the database")),
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     // Make sure we have permission to manage roles
     if (!interaction.appPermissions?.has(PermissionFlagsBits.ManageRoles, true)) {
@@ -33,13 +34,23 @@ export default <Command>{
       await interaction.reply(errorMessage("You do not have permission to use this command!"));
       return;
     }
+    // Possible dropped interactions using `fetch`
+    await interaction.deferReply({ ephemeral: true });
     // Make sure target user is actually a registrant
     // NOTE We could also check the api but the roles shouldnt be unsynced for long periods of time anyways
     const tUser = interaction.options.getUser("user", true);
-    const tMember = await interaction.guild!.members.fetch({ user: tUser, cache: true });
+    let tMember;
+    try {
+      tMember = await interaction.guild!.members.fetch({ user: tUser, cache: true });
+    } catch {
+      // This should theoretically never happen, but fetch will throw an error if not wrapped
+      this.logger.warn(`Could not find guildMember instance [Discord id: ${tUser.id}]`);
+      await interaction.followUp(errorMessage(`Could not locate user ${userMention(tUser.id)} in the Guild cache!`));
+      return;
+    }
     if (!tMember.roles.cache.has(CONFIG.Registrant.Role)) {
       this.logger.info(`Target user is not a registrant [Target: ${tUser.username}]`);
-      await interaction.reply(
+      await interaction.followUp(
         errorMessage(
           `Target user ${userMention(
             tUser.id,
@@ -60,7 +71,7 @@ export default <Command>{
       c.execute(interaction, tMember);
     } else {
       this.logger.error(`No implementation found [Command: ${this.data.name} | Subcommand: ${subcommand}]`);
-      await interaction.reply(errorMessage("This command hasn't been implemented yet!"));
+      await interaction.followUp(errorMessage("This command hasn't been implemented yet!"));
     }
   },
 };

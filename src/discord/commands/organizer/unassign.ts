@@ -8,20 +8,20 @@ export default <Partial<Command>>{
   async execute(interaction: ChatInputCommandInteraction, member: GuildMember): Promise<void> {
     // Avoid removing organizer from users that arent one already
     if (!member.roles.cache.has(CONFIG.Organizer.Role)) {
-      await interaction.reply(errorMessage(`Target user ${userMention(member.id)} is not an organizer!`));
+      await interaction.followUp(errorMessage(`Target user ${userMention(member.id)} is not an organizer!`));
       return;
     }
     // Set organizer server-side
     const apiOk = await ApiWorker.updateOrganizer(member.id, false);
     // Set organizer role discord-side
     if (!apiOk) {
-      await interaction.reply(errorMessage("Failed to remove organizer from user server-side!"));
+      await interaction.followUp(errorMessage("Failed to remove organizer from user server-side!"));
       return;
     }
-    // Grab organizer discord role
+    // Fetch organizer discord role
     const organizerRole = await interaction.guild!.roles.fetch(CONFIG.Organizer.Role, { cache: true });
     if (!organizerRole) {
-      await interaction.reply(
+      await interaction.followUp(
         errorMessage(
           `Failed to find the ${codeBlock("organizer")} discord role!\nTarget user ${userMention(
             member.id,
@@ -32,7 +32,7 @@ export default <Partial<Command>>{
     }
     // Set the role
     await member.roles.remove(organizerRole);
-    await interaction.reply(
+    await interaction.followUp(
       successMessage(`Successfully removed organizer permissions from ${userMention(member.id)}`, true),
     );
   },

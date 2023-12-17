@@ -5,9 +5,8 @@ import { ErrorEvent } from "ws";
 export default <ApiEvent>{
   name: "error",
   once: false,
-  execute(apiWorker: ApiWorker, err: ErrorEvent) {
-    this.logger.error(err);
-    this.logger.error("Recieved error from websocket, closing socket.");
-    apiWorker.ws.close();
+  execute(worker: ApiWorker, err: ErrorEvent) {
+    this.logger.error("Recieved error from websocket, closing socket.", err);
+    worker.ws.close();
   },
 };

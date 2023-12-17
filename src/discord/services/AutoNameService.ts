@@ -1,6 +1,5 @@
 import ApiWorker from "@api/ApiWorker";
-import TournamentPlayer from "@api/interfaces/TournamentPlayer";
-import WsResponse from "@api/interfaces/WsResponse";
+import type { Registrant } from "@api/types/Registrant";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
 import CONFIG from "config";
@@ -18,7 +17,7 @@ export default class AutoNameService {
    * Set the target registrant's discord profile to use the registrant role and their osu! username
    * @param registrant The raw data object representing a player
    */
-  async updateOneUser(registrant: TournamentPlayer | WsResponse): Promise<void> {
+  async updateOneUser(registrant: Registrant): Promise<void> {
     // Fetch our guild instance
     let guild;
     try {
@@ -51,8 +50,7 @@ export default class AutoNameService {
         member.roles.add(registrantRole, "Auto Name Service");
       }
     } catch (err) {
-      this.logger.error(err);
-      this.logger.error("Could not update discord member values. Possible lack of permission");
+      this.logger.error("Could not update discord member values. Possible lack of permission", err);
     }
   }
 
@@ -61,15 +59,8 @@ export default class AutoNameService {
    */
   async syncAllUsers(): Promise<void> {
     this.logger.info("Attempting batch update of users");
-    let registrants;
-    try {
-      registrants = await ApiWorker.getAllRegistrants();
-    } catch (err) {
-      if (err instanceof Error) this.logger.error(err);
-      this.logger.error("Could not get registrants. Is the api down?");
-      return;
-    }
-
+    const registrants = await ApiWorker.getAllRegistrants();
+    if (!registrants) return;
     for (const player of registrants) this.updateOneUser(player);
   }
 }

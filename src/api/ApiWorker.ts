@@ -4,7 +4,8 @@ import { readdirSync } from "fs";
 import CONFIG from "config";
 import { WebSocket } from "ws";
 import ApiEvent from "@api/interfaces/ApiEvent";
-import TournamentPlayer from "@api/interfaces/TournamentPlayer";
+import { RegistrantSchema } from "@api/schema/RegistrantSchema";
+import type { Registrant } from "@api/types/Registrant";
 import ExtendedClient from "@discord/ExtendedClient";
 
 export default class ApiWorker {
@@ -59,8 +60,14 @@ export default class ApiWorker {
    * Queries the Api for all registrants for batch updates
    * @returns An array of TournamentPlayer
    */
-  static async getAllRegistrants(): Promise<TournamentPlayer[]> {
-    return (await this.sendRequest("GET", "/registrants/")) as TournamentPlayer[];
+  static async getAllRegistrants(): Promise<Registrant[] | undefined> {
+    const res = await this.sendRequest("GET", "/registrants/");
+    if (res instanceof Array) {
+      const valid = res.every(e => RegistrantSchema.safeParse(e).success === true);
+      if (valid) return res as Registrant[];
+    } else {
+      Logger(module).error(`Received invalid data from api`);
+    }
   }
 
   /**
@@ -69,14 +76,13 @@ export default class ApiWorker {
    * @param isOrgaizer If the user will be an organizer or not
    */
   static async updateOrganizer(discordId: string, isOrgaizer: boolean): Promise<boolean> {
-    try {
-      const res = (await this.sendRequest("PATCH", `/registrants/${discordId}/`, {
-        // eslint-disable-next-line camelcase
-        is_organizer: isOrgaizer,
-      })) as TournamentPlayer;
-      return res.is_organizer == isOrgaizer ? true : false;
-    } catch (err) {
-      Logger(module).error(err);
+    // eslint-disable-next-line camelcase
+    const res = await this.sendRequest("PATCH", `/registrants/${discordId}/`, { is_organizer: isOrgaizer });
+    const parsed = RegistrantSchema.safeParse(res);
+    if (parsed.success) {
+      return parsed.data.is_organizer === isOrgaizer;
+    } else {
+      Logger(module).error(`Received invalid data from api`, parsed.error);
       return false;
     }
   }
@@ -88,7 +94,11 @@ export default class ApiWorker {
    * @param data What data to send as body
    * @returns Parsed json from response body
    */
-  static async sendRequest(method: string, endpoint: string, data: object = {}): Promise<any> {
+  private static async sendRequest(
+    method: "GET" | "POST" | "PATCH",
+    endpoint: string,
+    data: object = {},
+  ): Promise<any> {
     const reqHeaders = new Headers();
     reqHeaders.append("Content-Type", "application/json");
     reqHeaders.append("Authorization", `Token ${CONFIG.Api.PSK}`);
@@ -99,14 +109,17 @@ export default class ApiWorker {
     };
     if (Object.keys(data).length !== 0) reqInfo.body = JSON.stringify(data);
 
-    const res = await fetch(`http://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
-    if (!res.ok) {
-      Logger(module).error(
-        `Bad API response [Method: ${method} | Endpoint: ${endpoint} | Data: ${JSON.stringify(data)}]`,
-      );
-      throw Error(`Bad API response [Status: ${res.status} | Response: ${JSON.stringify(await res.json())}]`);
-    } else {
-      return await res.json();
+    let res;
+    try {
+      res = await fetch(`http://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
+    } catch (err) {
+      Logger(module).error(`Error executing Fetch operation`, err);
+      return;
     }
+    if (!res.ok) {
+      Logger(module).error(`Bad API response [Method: ${method} | Endpoint: ${endpoint} | Status: ${res.status}]`);
+      return;
+    }
+    return await res.json();
   }
 }
