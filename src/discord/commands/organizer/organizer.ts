@@ -36,30 +36,7 @@ export default <Command>{
     }
     // Possible dropped interactions using `fetch`
     await interaction.deferReply({ ephemeral: true });
-    // Make sure target user is actually a registrant
-    // NOTE We could also check the api but the roles shouldnt be unsynced for long periods of time anyways
-    const tUser = interaction.options.getUser("user", true);
-    let tMember;
-    try {
-      tMember = await interaction.guild!.members.fetch({ user: tUser, cache: true });
-    } catch {
-      // This should theoretically never happen, but fetch will throw an error if not wrapped
-      this.logger.warn(`Could not find guildMember instance [Discord id: ${tUser.id}]`);
-      await interaction.followUp(errorMessage(`Could not locate user ${userMention(tUser.id)} in the Guild cache!`));
-      return;
-    }
-    if (!tMember.roles.cache.has(CONFIG.Registrant.Role)) {
-      this.logger.info(`Target user is not a registrant [Target: ${tUser.username}]`);
-      await interaction.followUp(
-        errorMessage(
-          `Target user ${userMention(
-            tUser.id,
-          )} is not a registrant!\nIt's possible their roles have not yet been updated. Try again in a couple minutes.`,
-        ),
-      );
-      return;
-    }
-
+    const tUser = interaction.options.getUser("user");
     // Pull subcommand implementation and execute
     const subcommand = interaction.options.getSubcommand(true);
     const subModule = await import(`./${subcommand}`);
@@ -68,7 +45,34 @@ export default <Command>{
     if (c.execute) {
       // Assign a child logger to the subcommand
       c.logger = this.logger.child({ moduleName: `${this.data.name}:${subcommand}` });
-      c.execute(interaction, tMember);
+      // Make sure target user is actually a registrant for assign / unassign
+      if (tUser) {
+        let tMember;
+        try {
+          tMember = await interaction.guild!.members.fetch({ user: tUser, cache: true });
+        } catch {
+          // This should theoretically never happen, but fetch will throw an error if not wrapped
+          this.logger.warn(`Could not find guildMember instance [Discord id: ${tUser.id}]`);
+          await interaction.followUp(
+            errorMessage(`Could not locate user ${userMention(tUser.id)} in the Guild cache!`),
+          );
+          return;
+        }
+        if (!tMember.roles.cache.has(CONFIG.Registrant.Role)) {
+          this.logger.info(`Target user is not a registrant [Target: ${tUser.username}]`);
+          await interaction.followUp(
+            errorMessage(
+              `Target user ${userMention(
+                tUser.id,
+              )} is not a registrant!\nIt's possible their roles have not yet been updated. Try again in a couple minutes.`,
+            ),
+          );
+          return;
+        }
+        c.execute(interaction, tMember);
+      } else {
+        c.execute(interaction);
+      }
     } else {
       this.logger.error(`No implementation found [Command: ${this.data.name} | Subcommand: ${subcommand}]`);
       await interaction.followUp(errorMessage("This command hasn't been implemented yet!"));
