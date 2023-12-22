@@ -77,7 +77,7 @@ export default class ApiWorker {
    */
   static async updateOrganizer(discordId: string, isOrgaizer: boolean): Promise<boolean> {
     // eslint-disable-next-line camelcase
-    const res = await this.sendRequest("PATCH", `/registrants/${discordId}/`, { is_organizer: isOrgaizer });
+    const res = await this.sendRequest("PATCH", `/registrants/${discordId}/?key=discord`, { is_organizer: isOrgaizer });
     const parsed = RegistrantSchema.safeParse(res);
     if (parsed.success) {
       return parsed.data.is_organizer === isOrgaizer;
