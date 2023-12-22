@@ -2,6 +2,7 @@ import * as winston from "winston";
 import { createLogger, transports, format } from "winston";
 import Module from "module";
 import path from "path";
+import fs from "fs";
 
 /*
   TODO:
@@ -14,11 +15,16 @@ const seperateModName = format(info => {
   return info;
 });
 
+const logDir = path.resolve("logs");
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
+
 const logger = createLogger({
   level: process.env.NODE_ENV === "development" ? "debug" : "info",
   transports: [
     new transports.File({
-      dirname: "logs",
+      dirname: logDir,
       filename: "bot.log",
       maxsize: 5000000,
       maxFiles: 6,

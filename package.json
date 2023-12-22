@@ -30,7 +30,9 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "cross-env": "^7.0.3",
     "discord.js": "^14.13.0",
+    "tsconfig-paths": "^4.2.0",
     "winston": "^3.11.0",
     "ws": "^8.14.2",
     "zod": "^3.22.4"
@@ -38,7 +40,6 @@
   "devDependencies": {
     "@types/node": "^20.8.5",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
-    "cross-env": "^7.0.3",
     "eslint": "^8.51.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.1",
@@ -46,7 +47,6 @@
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   },
   "lint-staged": {
