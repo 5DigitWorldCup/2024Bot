@@ -19,8 +19,8 @@ export default <ApiEvent>{
     if (parsed.success) {
       // Add new registrants to the cache
       worker.registrantCache.set(parsed.data.discord_user_id, parsed.data);
-      const didSync = await worker.client.autoNameService.syncOneUser(parsed.data);
-      if (didSync) worker.client.autoNameService.announceRegistrant(parsed.data.discord_user_id);
+      worker.client.autoNameService.syncOneUser(parsed.data);
+      worker.client.autoNameService.announceRegistrant(parsed.data);
     } else {
       this.logger.warn("Received invalid message data from the websocket");
     }

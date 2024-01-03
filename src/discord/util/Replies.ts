@@ -2,7 +2,6 @@ import { bold, EmbedBuilder, InteractionReplyOptions, PermissionsString, inlineC
 
 /**
  * Creates an embed builder formatted for an error message
- *
  * @param error The message to display to the user
  * @returns Embed builder formatted for error
  */
@@ -17,6 +16,10 @@ export function errorEmbed(error: string): EmbedBuilder {
  */
 export function successEmbed(message: string): EmbedBuilder {
   return new EmbedBuilder().setDescription(message).setColor("Green");
+}
+
+export function coloredEmbed(): EmbedBuilder {
+  return new EmbedBuilder().setColor("#fd2664");
 }
 
 /**

@@ -22,6 +22,10 @@ interface Config {
      * Pre-shared authentication key for non-safe methods
      */
     PSK: string;
+    /**
+     * Polling delay in seconds for refreshing registrant cache
+     */
+    RefreshDelay: number;
   };
   Organizer: {
     /**
