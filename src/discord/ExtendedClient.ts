@@ -4,7 +4,7 @@ import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
 import path from "path";
-import Logger from "@common/Logger";
+import CreateLogger, { DiscordTransport, Logger, parentLogger } from "@common/Logger";
 import ApiWorker from "@api/ApiWorker";
 import AutoNameService from "@discord/services/AutoNameService";
 
@@ -13,17 +13,20 @@ export default class ExtendedClient extends Client {
    * Discord `Collection` of <`Command Name`, `Command Data`>
    */
   public commands: Collection<string, Command> = new Collection();
-  private readonly logger = Logger(module);
-  public readonly apiWorker: ApiWorker;
-  public readonly autoNameService: AutoNameService;
+  private logger!: Logger;
+  public apiWorker!: ApiWorker;
+  public autoNameService!: AutoNameService;
 
   constructor(options: ClientOptions) {
     super(options);
-    this.apiWorker = new ApiWorker(this);
-    this.autoNameService = new AutoNameService(this);
+    parentLogger.add(new DiscordTransport({ client: this }));
   }
 
   public async init(): Promise<void> {
+    this.logger = CreateLogger(module);
+    this.apiWorker = new ApiWorker(this);
+    this.autoNameService = new AutoNameService(this);
+
     this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "commands"));
     await this.bindEvents(path.join(__dirname, "events"));
 
@@ -53,7 +56,7 @@ export default class ExtendedClient extends Client {
         if (!c.data || !c.execute) continue;
         // Attach filePath and Logger to each module
         c.filePath = fpath;
-        c.logger = Logger(fpath);
+        c.logger = CreateLogger(fpath);
         commands.set(c.data.name, c);
       }
     }

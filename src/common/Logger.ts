@@ -1,14 +1,13 @@
 import * as winston from "winston";
-import { createLogger, transports, format } from "winston";
+import Transport from "winston-transport";
+import { createLogger, transports, format, transport } from "winston";
 import Module from "module";
 import path from "path";
 import fs from "fs";
+import ExtendedClient from "@discord/ExtendedClient";
+import CONFIG from "config";
+import { EmbedBuilder } from "discord.js";
 
-/*
-  TODO:
-  Potentially stream log output to the db
-  Potentially automatically backup logs
-*/
 const seperateModName = format(info => {
   info.moduleName = info.metadata.moduleName;
   delete info.metadata.moduleName;
@@ -20,7 +19,87 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-const logger = createLogger({
+enum LogLevels {
+  debug = 0,
+  info = 1,
+  warn = 2,
+  error = 3,
+}
+
+enum LogLevelColors {
+  debug = "LightGrey",
+  info = "Grey",
+  warn = "Orange",
+  error = "Red",
+}
+
+interface LogMessage {
+  level: "debug" | "info" | "warn" | "error";
+  message: string;
+  metadata: any;
+  moduleName: string;
+}
+
+/**
+ * Custom winston transport that routes logs through discord channels
+ */
+export class DiscordTransport extends Transport {
+  private readonly client: ExtendedClient;
+  private readonly verboseChannelId: string;
+  private readonly generalChannelId: string;
+  /**
+   * Amount of chars in `info.metadata` before truncating
+   */
+  private static readonly MAX_META_CHARS = 1700;
+
+  constructor(opts: transport.TransportStreamOptions & { client: ExtendedClient }) {
+    super(opts);
+    const { client } = opts;
+    this.client = client;
+    this.verboseChannelId = CONFIG.Logging.Verbose;
+    this.generalChannelId = CONFIG.Logging.General;
+  }
+
+  log(info: LogMessage, callback: () => void) {
+    setImmediate(() => {
+      this.emit("logged", info);
+    });
+    // Determine channel from log level
+    const channelId = LogLevels[info.level] >= LogLevels.warn ? this.verboseChannelId : this.generalChannelId;
+    // Build log message
+    const embed = new EmbedBuilder()
+      .setColor(LogLevelColors[info.level])
+      .addFields(
+        { name: "Level", value: info.level.toUpperCase(), inline: true },
+        { name: "Origin", value: info.moduleName, inline: true },
+        { name: "Message", value: info.message },
+      )
+      .setTimestamp();
+
+    if (info.metadata) {
+      try {
+        const meta = JSON.stringify(info.metadata, null, "\t").substring(0, DiscordTransport.MAX_META_CHARS);
+        embed.addFields({ name: "Metadata", value: meta });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    this.client.channels
+      .fetch(channelId)
+      .then(channel => {
+        if (channel?.isTextBased()) {
+          channel.send({ embeds: [embed] });
+        }
+      })
+      .catch(console.error);
+    if (callback) {
+      callback();
+    }
+  }
+}
+
+export const parentLogger = createLogger({
   level: process.env.NODE_ENV === "development" ? "debug" : "info",
   transports: [
     new transports.File({
@@ -55,5 +134,5 @@ export type Logger = winston.Logger;
  */
 export default function createChildLogger(arg: Module | string): Logger {
   const toParse = arg instanceof Module ? arg.id : arg;
-  return logger.child({ moduleName: path.parse(toParse).name });
+  return parentLogger.child({ moduleName: path.parse(toParse).name });
 }

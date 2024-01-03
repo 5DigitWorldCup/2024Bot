@@ -47,6 +47,16 @@ interface Config {
      */
     Channel: string;
   };
+  Logging: {
+    /**
+     * General purpose logging channel id
+     */
+    General: string;
+    /**
+     * Verbose logging channel id
+     */
+    Verbose: string;
+  };
 }
 
 import * as cfg from "../config.json";
