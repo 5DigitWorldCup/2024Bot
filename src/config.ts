@@ -38,6 +38,10 @@ interface Config {
      * Registrant role id
      */
     Role: string;
+    /**
+     * Registrant announcement channel id
+     */
+    Channel: string;
   };
 }
 

@@ -15,6 +15,11 @@
     "Role": "{RoleId}"
   },
   "Registrant": {
-    "Role": "{RoleId}"
+    "Role": "{RoleId}",
+    "Channel": "{ChannelId}"
+  },
+  "Logging": {
+    "General": "{ChannelId}",
+    "Verbose": "{ChannelId}"
   }
 }

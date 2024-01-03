@@ -3,7 +3,7 @@ import ExtendedClient from "discord/ExtendedClient";
 import CONFIG from "config";
 
 const client = new ExtendedClient({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
   rest: {
     timeout: 80_000,
   },

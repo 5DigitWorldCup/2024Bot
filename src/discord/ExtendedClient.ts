@@ -12,10 +12,10 @@ export default class ExtendedClient extends Client {
   /**
    * Discord `Collection` of <`Command Name`, `Command Data`>
    */
-  commands: Collection<string, Command> = new Collection();
-  readonly logger = Logger(module);
-  readonly apiWorker: ApiWorker;
-  readonly autoNameService: AutoNameService;
+  public commands: Collection<string, Command> = new Collection();
+  private readonly logger = Logger(module);
+  public readonly apiWorker: ApiWorker;
+  public readonly autoNameService: AutoNameService;
 
   constructor(options: ClientOptions) {
     super(options);
@@ -23,7 +23,7 @@ export default class ExtendedClient extends Client {
     this.autoNameService = new AutoNameService(this);
   }
 
-  async init(): Promise<void> {
+  public async init(): Promise<void> {
     this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "commands"));
     await this.bindEvents(path.join(__dirname, "events"));
 
@@ -34,7 +34,7 @@ export default class ExtendedClient extends Client {
    * Creates a collection of command modules from `dir`
    * @param dir directory to search for command modules in
    */
-  static async loadCommands(dir: string): Promise<Collection<string, Command>> {
+  public static async loadCommands(dir: string): Promise<Collection<string, Command>> {
     let commands = new Collection<string, Command>();
     const files = fs.readdirSync(dir);
 
@@ -63,7 +63,7 @@ export default class ExtendedClient extends Client {
   /**
    * Deploys application commands to the guild specified in config
    */
-  static async deployCommands(): Promise<string> {
+  public static async deployCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
     const commands = await this.loadCommands(path.join(__dirname, "commands"));
     const data = commands.map(c => c.data.toJSON());
@@ -75,7 +75,7 @@ export default class ExtendedClient extends Client {
   /**
    * Clears all application commands registered to the guild specified in config
    */
-  static async clearCommands(): Promise<string> {
+  public static async clearCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
 
     await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: [] });
