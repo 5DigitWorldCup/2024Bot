@@ -1,26 +1,32 @@
 import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
-import { CONFIG } from "config";
+import CONFIG from "config";
 import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
 import path from "path";
-import Logger from "@common/Logger";
+import CreateLogger, { DiscordTransport, Logger, parentLogger } from "@common/Logger";
 import ApiWorker from "@api/ApiWorker";
+import AutoNameService from "@discord/services/AutoNameService";
 
 export default class ExtendedClient extends Client {
   /**
    * Discord `Collection` of <`Command Name`, `Command Data`>
    */
-  commands: Collection<string, Command> = new Collection();
-  logger = Logger(module);
-  apiWorker: ApiWorker;
+  public commands: Collection<string, Command> = new Collection();
+  private logger!: Logger;
+  public apiWorker!: ApiWorker;
+  public autoNameService!: AutoNameService;
 
   constructor(options: ClientOptions) {
     super(options);
-    this.apiWorker = new ApiWorker();
+    parentLogger.add(new DiscordTransport({ client: this }));
   }
 
-  async init(): Promise<void> {
+  public async init(): Promise<void> {
+    this.logger = CreateLogger(module);
+    this.apiWorker = new ApiWorker(this);
+    this.autoNameService = new AutoNameService(this);
+
     this.commands = await ExtendedClient.loadCommands(path.join(__dirname, "commands"));
     await this.bindEvents(path.join(__dirname, "events"));
 
@@ -31,7 +37,7 @@ export default class ExtendedClient extends Client {
    * Creates a collection of command modules from `dir`
    * @param dir directory to search for command modules in
    */
-  static async loadCommands(dir: string): Promise<Collection<string, Command>> {
+  public static async loadCommands(dir: string): Promise<Collection<string, Command>> {
     let commands = new Collection<string, Command>();
     const files = fs.readdirSync(dir);
 
@@ -50,7 +56,7 @@ export default class ExtendedClient extends Client {
         if (!c.data || !c.execute) continue;
         // Attach filePath and Logger to each module
         c.filePath = fpath;
-        c.logger = Logger(fpath);
+        c.logger = CreateLogger(fpath);
         commands.set(c.data.name, c);
       }
     }
@@ -60,9 +66,9 @@ export default class ExtendedClient extends Client {
   /**
    * Deploys application commands to the guild specified in config
    */
-  static async deployCommands(): Promise<string> {
+  public static async deployCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
-    const commands = await this.loadCommands(path.join(__dirname, "..", "commands"));
+    const commands = await this.loadCommands(path.join(__dirname, "commands"));
     const data = commands.map(c => c.data.toJSON());
 
     await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: data });
@@ -72,7 +78,7 @@ export default class ExtendedClient extends Client {
   /**
    * Clears all application commands registered to the guild specified in config
    */
-  static async clearCommands(): Promise<string> {
+  public static async clearCommands(): Promise<string> {
     const rest = new REST({ version: "10" }).setToken(CONFIG.Bot.Token);
 
     await rest.put(Routes.applicationGuildCommands(CONFIG.Bot.ClientId, CONFIG.Bot.GuildId), { body: [] });

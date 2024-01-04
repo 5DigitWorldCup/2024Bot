@@ -9,7 +9,7 @@ export default interface BaseEvent {
   execute(...args: any): any;
   /**
    * Whether this event will only be listened for a singular time or an indefinite amount of times
-   * Determines `client.once()` or `client.on()`
+   * Determines `listener.once()` or `listener.on()`
    */
   once?: boolean;
   /**

@@ -6,7 +6,8 @@
   },
   "Api": {
     "BaseUrl": "127.0.0.1:8000",
-    "PSK": "DONOTUSEINPRODUCTIONDONOTUSEINPRODUCTIONDONOTUSEINPRODUCTION"
+    "PSK": "DONOTUSEINPRODUCTIONDONOTUSEINPRODUCTIONDONOTUSEINPRODUCTION",
+    "RefreshDelay": 900
   },
   "Organizer": {
     "Whitelist": [
@@ -15,6 +16,11 @@
     "Role": "{RoleId}"
   },
   "Registrant": {
-    "Role": "{RoleId}"
+    "Role": "{RoleId}",
+    "Channel": "{ChannelId}"
+  },
+  "Logging": {
+    "General": "{ChannelId}",
+    "Verbose": "{ChannelId}"
   }
 }

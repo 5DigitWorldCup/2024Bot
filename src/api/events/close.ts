@@ -4,16 +4,16 @@ import ApiWorker from "@api/ApiWorker";
 export default <ApiEvent>{
   name: "close",
   once: false,
-  async execute(apiWorker: ApiWorker) {
+  async execute(worker: ApiWorker) {
     // Set exponential recon timer
-    let reconTimer = Math.pow(2, apiWorker.nReconAttempts);
+    let reconTimer = Math.pow(2, worker.nReconAttempts);
     reconTimer = reconTimer > 300 ? 300 : reconTimer;
     this.logger.warn(`Connection to websocket was closed, attempting reconnect in ${reconTimer} seconds`);
     // Attempt recon
     setTimeout(() => {
-      apiWorker.ws = apiWorker.createWebsocket();
-      apiWorker.bindSocketEvents();
+      worker.ws = worker.createWebsocket();
+      worker.bindSocketEvents();
     }, reconTimer * 1000);
-    apiWorker.nReconAttempts++;
+    worker.nReconAttempts++;
   },
 };
