@@ -12,7 +12,8 @@ export default <ApiEvent>{
     // Attempt recon
     setTimeout(() => {
       worker.ws = worker.createWebsocket();
-      worker.bindSocketEvents();
+      worker.bindEvents(worker.ws, "ws/events");
+      this.logger.info("Bound events to websocket");
     }, reconTimer * 1000);
     worker.nReconAttempts++;
   },

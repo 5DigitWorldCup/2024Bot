@@ -76,7 +76,7 @@ export class DiscordTransport extends Transport {
       )
       .setTimestamp();
 
-    if (info.metadata) {
+    if (Object.keys(info.metadata).length > 0) {
       try {
         const meta = codeBlock(
           "json",

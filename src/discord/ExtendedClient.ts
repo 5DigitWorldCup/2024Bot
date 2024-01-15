@@ -19,7 +19,7 @@ export default class ExtendedClient extends Client {
 
   constructor(options: ClientOptions) {
     super(options);
-    parentLogger.add(new DiscordTransport({ client: this }));
+    if (CONFIG.Logging.Enabled) parentLogger.add(new DiscordTransport({ client: this }));
   }
 
   public async init(): Promise<void> {
