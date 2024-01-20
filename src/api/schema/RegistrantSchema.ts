@@ -1,9 +1,8 @@
 /* eslint-disable camelcase */
 import { z } from "zod";
+import { WsRegistrantSchema } from "@api/schema/WsRegistrantSchema";
 
-export const RegistrantSchema = z.object({
-  discord_user_id: z.string(),
-  osu_username: z.string(),
-  is_organizer: z.boolean(),
-  team_id: z.string().optional(),
+export const RegistrantSchema = WsRegistrantSchema.extend({
+  team_id: z.string(),
+  in_roster: z.boolean(),
 });

@@ -20,6 +20,7 @@
     "Channel": "{ChannelId}"
   },
   "Logging": {
+    "Enabled": true,
     "General": "{ChannelId}",
     "Verbose": "{ChannelId}"
   }

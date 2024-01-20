@@ -1,5 +1,5 @@
 import Command from "@discord/interfaces/Command";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { SlashCommandBuilder, ChatInputCommandInteraction, codeBlock, inlineCode } from "discord.js";
 import { errorMessage, successEmbed } from "@discord/util/Replies";
 import type { KeyParam } from "@api/ApiWorker";

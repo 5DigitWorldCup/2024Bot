@@ -2,7 +2,7 @@ import type { RegistrantPage } from "@api/types/RegistrantPage";
 import type { Registrant } from "./types/Registrant";
 import ApiWorker from "@api/ApiWorker";
 import Logger from "@common/Logger";
-import { RegistrantPageSchema } from "./schema/RegistrantPageSchema";
+import { RegistrantPageSchema } from "@api/schema/RegistrantPageSchema";
 
 /**
  * Wrapper class for interacting with pagination on the /registrants/ endpoint

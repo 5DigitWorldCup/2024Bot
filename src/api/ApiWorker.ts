@@ -1,7 +1,7 @@
 import Logger from "@common/Logger";
 import path from "path";
 import { readdirSync } from "fs";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { WebSocket } from "ws";
 import ApiEvent from "@api/interfaces/ApiEvent";
 import { RegistrantSchema } from "@api/schema/RegistrantSchema";
@@ -9,9 +9,10 @@ import type { Registrant } from "@api/types/Registrant";
 import type { RawRegistrant } from "@api/types/RawRegistrant";
 import type ExtendedClient from "@discord/ExtendedClient";
 import { Collection } from "discord.js";
-import { RegistrantPageSchema } from "./schema/RegistrantPageSchema";
-import RegistrantPager from "./RegistrantPager";
-import { RawRegistrantSchema } from "./schema/RawRegistrantSchema";
+import { RegistrantPageSchema } from "@api/schema/RegistrantPageSchema";
+import RegistrantPager from "@api/RegistrantPager";
+import { RawRegistrantSchema } from "@api/schema/RawRegistrantSchema";
+import { EventEmitter } from "events";
 
 export type KeyParam = "osu" | "discord" | "id";
 
@@ -22,7 +23,14 @@ export default class ApiWorker {
    * Exponential scalar for reconnection timeout
    */
   public nReconAttempts = 0;
+  /**
+   * Websocket connection to the api that recieves registrant related data
+   */
   public ws: WebSocket;
+  /**
+   * Implementations for the various actions taken with registrant data recieved from the websocket
+   */
+  public wsMessageHandler: EventEmitter;
   /**
    * Cache containing basic registrant data (discord id, osu username, is organizer)
    */
@@ -31,10 +39,14 @@ export default class ApiWorker {
   constructor(client: ExtendedClient) {
     this.client = client;
     this.ws = this.createWebsocket();
+    this.wsMessageHandler = new EventEmitter();
   }
 
   public async init(): Promise<void> {
-    await this.bindSocketEvents();
+    await this.bindEvents(this.wsMessageHandler, "ws/messageevents");
+    this.logger.info("Bound events to websocket message");
+    await this.bindEvents(this.ws, "ws/events");
+    this.logger.info("Bound events to websocket");
   }
 
   /**
@@ -47,8 +59,8 @@ export default class ApiWorker {
   /**
    * Binds listeners to all websocket events
    */
-  public async bindSocketEvents(): Promise<void> {
-    const dir = path.join(__dirname, "events");
+  public async bindEvents(listener: EventEmitter, subdir: string): Promise<void> {
+    const dir = path.join(__dirname, subdir);
     const files = readdirSync(dir);
 
     for (const f of files) {
@@ -59,12 +71,11 @@ export default class ApiWorker {
       ev.logger = this.logger.child({ moduleName: `ApiWorker:${ev.name}` });
 
       if (ev.once) {
-        this.ws.once(ev.name.toString(), (...args) => ev.execute(this, ...args));
+        listener.once(ev.name, (...args) => ev.execute(this, ...args));
       } else {
-        this.ws.on(ev.name.toString(), (...args) => ev.execute(this, ...args));
+        listener.on(ev.name, (...args) => ev.execute(this, ...args));
       }
     }
-    this.logger.info(`Bound events to websocket`);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
@@ -19,7 +19,7 @@ export default class ExtendedClient extends Client {
 
   constructor(options: ClientOptions) {
     super(options);
-    parentLogger.add(new DiscordTransport({ client: this }));
+    if (CONFIG.Logging.Enabled) parentLogger.add(new DiscordTransport({ client: this }));
   }
 
   public async init(): Promise<void> {

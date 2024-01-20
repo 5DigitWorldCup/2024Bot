@@ -5,8 +5,8 @@ import Module from "module";
 import path from "path";
 import fs from "fs";
 import ExtendedClient from "@discord/ExtendedClient";
-import CONFIG from "config";
-import { EmbedBuilder } from "discord.js";
+import CONFIG from "@/config";
+import { EmbedBuilder, codeBlock } from "discord.js";
 
 const seperateModName = format(info => {
   info.moduleName = info.metadata.moduleName;
@@ -76,23 +76,28 @@ export class DiscordTransport extends Transport {
       )
       .setTimestamp();
 
-    if (info.metadata) {
+    if (Object.keys(info.metadata).length > 0) {
       try {
-        const meta = JSON.stringify(info.metadata, null, "\t").substring(0, DiscordTransport.MAX_META_CHARS);
+        const meta = codeBlock(
+          "json",
+          JSON.stringify(info.metadata, null, "\t").substring(0, DiscordTransport.MAX_META_CHARS),
+        );
         embed.addFields({ name: "Metadata", value: meta });
       } catch (err) {
         console.error(err);
       }
     }
 
-    this.client.channels
-      .fetch(channelId)
-      .then(channel => {
-        if (channel?.isTextBased()) {
-          channel.send({ embeds: [embed] });
-        }
-      })
-      .catch(console.error);
+    if (this.client.isReady()) {
+      this.client.channels
+        .fetch(channelId)
+        .then(channel => {
+          if (channel?.isTextBased()) {
+            channel.send({ embeds: [embed] });
+          }
+        })
+        .catch(console.error);
+    }
     if (callback) {
       callback();
     }

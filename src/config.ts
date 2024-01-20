@@ -49,6 +49,10 @@ interface Config {
   };
   Logging: {
     /**
+     * Enable the discord logging transport
+     */
+    Enabled: boolean;
+    /**
      * General purpose logging channel id
      */
     General: string;

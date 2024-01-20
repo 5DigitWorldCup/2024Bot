@@ -20,11 +20,11 @@
     "build": "tsc",
     "format": "prettier --write ./src/",
     "lint": "eslint --cache --fix ./src/",
-    "start": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register .",
+    "start": "node .",
     "dev": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
     "dev:nm": "nodemon --config nodemon.json src/index.ts",
-    "deploy": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/discord/deploy-commands.js",
-    "clear": "cross-env TS_NODE_BASEURL=./dist/src/ node -r tsconfig-paths/register dist/src/discord/clear-commands.js"
+    "deploy": "node dist/src/discord/deploy-commands.js",
+    "clear": "node dist/src/discord/clear-commands.js"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -32,6 +32,7 @@
   "dependencies": {
     "cross-env": "^7.0.3",
     "discord.js": "^14.13.0",
+    "module-alias": "^2.2.3",
     "tsconfig-paths": "^4.2.0",
     "winston": "^3.11.0",
     "winston-transport": "^4.6.0",
@@ -55,5 +56,11 @@
       "eslint --cache --fix",
       "prettier --write ./src/"
     ]
+  },
+  "_moduleAliases": {
+    "@": "dist/src",
+    "@discord": "dist/src/discord",
+    "@common": "dist/src/common",
+    "@api": "dist/src/api"
   }
 }
