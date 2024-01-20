@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, GuildMember, userMention, codeBlock } from "discord.js";
-import CONFIG from "config";
-import Command from "discord/interfaces/Command";
-import { errorMessage, successMessage } from "discord/util/Replies";
+import CONFIG from "@/config";
+import Command from "@discord/interfaces/Command";
+import { errorMessage, successMessage } from "@discord/util/Replies";
 import ApiWorker from "@api/ApiWorker";
 
 export default <Partial<Command>>{

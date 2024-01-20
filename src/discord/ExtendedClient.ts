@@ -1,5 +1,5 @@
 import { Client, ClientOptions, Collection, REST, Routes } from "discord.js";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";

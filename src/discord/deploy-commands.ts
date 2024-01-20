@@ -1,3 +1,4 @@
+import "module-alias/register";
 import ExtendedClient from "@discord/ExtendedClient";
 import Logger from "@common/Logger";
 

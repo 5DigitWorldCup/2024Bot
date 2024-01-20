@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, userMention } from "discord.js";
-import { appMissingPermsError, errorMessage } from "discord/util/Replies";
-import CONFIG from "config";
-import Command from "discord/interfaces/Command";
+import { appMissingPermsError, errorMessage } from "@discord/util/Replies";
+import CONFIG from "@/config";
+import Command from "@discord/interfaces/Command";
 
 export default <Command>{
   data: new SlashCommandBuilder()

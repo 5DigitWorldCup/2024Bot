@@ -30,6 +30,7 @@
       "moduleResolution": "Node"                        /* Specify how TypeScript looks up a file from a given module specifier. */,
       "baseUrl": "./src"                                /* Specify the base directory to resolve non-relative module names. */,
       "paths": {
+        "@/*": ["./*"], 
         "@common/*": ["common/*"],
         "@discord/*": ["discord/*"],
         "@api/*": ["api/*"],

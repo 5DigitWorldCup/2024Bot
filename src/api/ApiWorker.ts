@@ -1,7 +1,7 @@
 import Logger from "@common/Logger";
 import path from "path";
 import { readdirSync } from "fs";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { WebSocket } from "ws";
 import ApiEvent from "@api/interfaces/ApiEvent";
 import { RegistrantSchema } from "@api/schema/RegistrantSchema";

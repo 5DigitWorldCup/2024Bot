@@ -5,7 +5,7 @@ import Module from "module";
 import path from "path";
 import fs from "fs";
 import ExtendedClient from "@discord/ExtendedClient";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { EmbedBuilder, codeBlock } from "discord.js";
 
 const seperateModName = format(info => {

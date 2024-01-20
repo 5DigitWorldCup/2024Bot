@@ -3,7 +3,7 @@ import { countryCodeToFull, countryCodeToEmoji } from "@api/util/Countries";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
 import { getMember } from "@discord/util/Wrappers";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { Guild, GuildMember, Role, bold } from "discord.js";
 
 export default class AutoNameService {

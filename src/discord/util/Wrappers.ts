@@ -1,6 +1,6 @@
 import { Guild, GuildMember } from "discord.js";
 import ExtendedClient from "@discord/ExtendedClient";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import Logger from "@common/Logger";
 
 const logger = Logger(module);

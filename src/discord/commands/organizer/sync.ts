@@ -1,7 +1,7 @@
 import ApiWorker from "@api/ApiWorker";
 import Command from "@discord/interfaces/Command";
 import { successMessage } from "@discord/util/Replies";
-import CONFIG from "config";
+import CONFIG from "@/config";
 import { ChatInputCommandInteraction, inlineCode } from "discord.js";
 import ExtendedClient from "@discord/ExtendedClient";
 
