@@ -15,3 +15,4 @@ services:
       service: "discordbot"
     volumes:
       - /var/log/discordbot:/home/node/app/logs
+    restart: always
