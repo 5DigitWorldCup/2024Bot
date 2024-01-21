@@ -15,13 +15,19 @@ export default class AutoNameService {
    * Default -- 900 seconds (15 minutes)
    */
   private readonly refreshDelay = CONFIG.Api.RefreshDelay;
+  private refreshHandle!: NodeJS.Timeout;
   constructor(client: ExtendedClient) {
     this.client = client;
     // Set reocurring tasks
-    setInterval(async () => {
+    this.setRefresh(CONFIG.Api.RefreshDelay);
+  }
+
+  public setRefresh(timeout: number): void {
+    if (this.refreshHandle) clearInterval(this.refreshHandle);
+    this.refreshHandle = setInterval(async () => {
       await this.client.apiWorker.populateCache();
       this.syncAllUsers();
-    }, this.refreshDelay * 1000);
+    }, timeout * 1000);
   }
 
   /**
@@ -66,7 +72,9 @@ export default class AutoNameService {
    */
   public async syncAllUsers(): Promise<void> {
     this.logger.info("Attempting batch update of users");
-    this.client.apiWorker.registrantCache.forEach(reg => this.syncOneUser(reg));
+    const promises = this.client.apiWorker.registrantCache.map(e => this.syncOneUser(e));
+    await Promise.all(promises);
+    this.logger.info("Batch user update complete");
   }
 
   /**
