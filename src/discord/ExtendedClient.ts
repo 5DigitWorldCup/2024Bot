@@ -16,10 +16,12 @@ export default class ExtendedClient extends Client {
   private logger!: Logger;
   public apiWorker!: ApiWorker;
   public autoNameService!: AutoNameService;
+  public loggingEnabled: boolean;
 
   constructor(options: ClientOptions) {
     super(options);
-    if (CONFIG.Logging.Enabled) parentLogger.add(new DiscordTransport({ client: this }));
+    this.loggingEnabled = CONFIG.Logging.Enabled;
+    parentLogger.add(new DiscordTransport({ client: this }));
   }
 
   public async init(): Promise<void> {

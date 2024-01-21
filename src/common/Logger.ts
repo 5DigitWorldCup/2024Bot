@@ -64,6 +64,7 @@ export class DiscordTransport extends Transport {
     setImmediate(() => {
       this.emit("logged", info);
     });
+    if (!this.client.isReady() || !this.client.loggingEnabled) return;
     // Determine channel from log level
     const channelId = LogLevels[info.level] >= LogLevels.warn ? this.verboseChannelId : this.generalChannelId;
     // Build log message
