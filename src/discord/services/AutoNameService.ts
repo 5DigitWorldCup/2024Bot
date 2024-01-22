@@ -116,7 +116,7 @@ export default class AutoNameService {
     let func;
 
     if (!isOrganizer && hasRole) {
-      const apiOk = await ApiWorker.updateOrganizer(member.id, isOrganizer);
+      const apiOk = await ApiWorker.updateOrganizer(member.id, true);
       apiOk
         ? this.logger.info(`Auto set an organizer on register [Discord id: ${member.id}]`)
         : this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
