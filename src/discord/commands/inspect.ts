@@ -34,21 +34,19 @@ export default <Command>{
     const key = interaction.options.getString("key", true) as KeyParam;
     const full = interaction.options.getBoolean("full", false) ?? true;
 
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
     const data = await client.apiWorker.getOneRegistrant(search, key, full);
     if (data) {
-      await interaction.followUp({
-        embeds: [
-          successEmbed(codeBlock("json", JSON.stringify(data, null, "\t")))
-            .setTitle("Inspect result")
-            .setDescription(`Result for ${inlineCode(key)} id: ${inlineCode(search)}`),
-        ],
+      const descriptionText = `Result for ${inlineCode(key)} id: ${inlineCode(search)}\n${codeBlock(
+        "json",
+        JSON.stringify(data, null, "\t"),
+      )}`;
+      interaction.followUp({
+        embeds: [successEmbed(descriptionText).setTitle("Inspect result")],
         ephemeral: true,
       });
     } else {
-      await interaction.followUp(
-        errorMessage(`Unable to find the ${inlineCode(key)} user with id ${inlineCode(search)}`),
-      );
+      interaction.followUp(errorMessage(`Unable to find the ${inlineCode(key)} user with id ${inlineCode(search)}`));
     }
   },
 };

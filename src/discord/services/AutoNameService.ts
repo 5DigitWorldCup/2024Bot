@@ -11,18 +11,31 @@ export default class AutoNameService {
   private readonly logger = Logger(module);
   public readonly client: ExtendedClient;
   private refreshHandle!: NodeJS.Timeout;
+  private refreshTimeout: number;
+  private nextRefresh!: number;
   constructor(client: ExtendedClient) {
     this.client = client;
     // Set reocurring tasks
-    this.setRefresh(CONFIG.Api.RefreshDelay);
+    this.refreshTimeout = CONFIG.Api.RefreshDelay;
+    this.setRefresh(this.refreshTimeout);
   }
 
   public setRefresh(timeout: number): void {
+    this.refreshTimeout = timeout;
+    this.nextRefresh = Date.now() + timeout * 1000;
     if (this.refreshHandle) clearInterval(this.refreshHandle);
     this.refreshHandle = setInterval(async () => {
       await this.client.apiWorker.populateCache();
-      this.syncAllUsers();
+      await this.syncAllUsers();
+      this.nextRefresh = Date.now() + timeout * 1000;
     }, timeout * 1000);
+  }
+
+  /**
+   * Getter for `nextRefresh` timestamp
+   */
+  public getNextRefresh(): number {
+    return this.nextRefresh;
   }
 
   /**
@@ -32,7 +45,7 @@ export default class AutoNameService {
   public async announceRegistrant(regisrant: Registrant): Promise<void> {
     const channel = await this.client.channels.fetch(CONFIG.Registrant.Channel, { cache: true });
     if (!channel) {
-      this.logger.error("Could not find registrant announce Channel, skipping welcome embed");
+      this.logger.error("Failed to find registrant announce Channel, skipping welcome embed");
       return;
     }
     const flag = countryCodeToEmoji(regisrant.osu_flag) + " ";
@@ -96,7 +109,7 @@ export default class AutoNameService {
     const { guild, id } = member;
     const registrantRole = await guild.roles.fetch(CONFIG.Registrant.Role, { cache: true });
     if (!registrantRole) {
-      this.logger.warn(`Could not find Registrant Role instance, skipping role assignment [Discord id: ${id}]`);
+      this.logger.warn(`Failed to find Registrant Role instance, skipping role assignment [Discord id: ${id}]`);
       return;
     }
 
@@ -118,8 +131,8 @@ export default class AutoNameService {
     if (!isOrganizer && hasRole) {
       const apiOk = await ApiWorker.updateOrganizer(member.id, true);
       apiOk
-        ? this.logger.info(`Auto set an organizer on register [Discord id: ${member.id}]`)
-        : this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
+        ? this.logger.info(`Granted organizer permissions [Discord id: ${member.id}]`)
+        : this.logger.warn(`Failed to update organizer status [Discord id: ${member.id}]`);
     }
     if (isOrganizer && !hasRole) func = member.roles.add;
     if (hasRole && remove) func = member.roles.remove;
@@ -128,7 +141,7 @@ export default class AutoNameService {
     const { guild, id } = member;
     const organizerRole = await guild.roles.fetch(CONFIG.Organizer.Role, { cache: true });
     if (!organizerRole) {
-      this.logger.warn(`Could not find Organizer Role instance, skipping role assignment [Discord id: ${id}]`);
+      this.logger.warn(`Failed to find Organizer Role instance, skipping role assignment [Discord id: ${id}]`);
       return;
     }
 
