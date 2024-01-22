@@ -2,7 +2,7 @@ import type { Registrant } from "@api/types/Registrant";
 import { countryCodeToFull, countryCodeToEmoji } from "@api/util/Countries";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
-import { getMember } from "@discord/util/Wrappers";
+import { getGuild, getMember } from "@discord/util/Wrappers";
 import CONFIG from "@/config";
 import { Guild, GuildMember, Role, bold } from "discord.js";
 
@@ -15,13 +15,19 @@ export default class AutoNameService {
    * Default -- 900 seconds (15 minutes)
    */
   private readonly refreshDelay = CONFIG.Api.RefreshDelay;
+  private refreshHandle!: NodeJS.Timeout;
   constructor(client: ExtendedClient) {
     this.client = client;
     // Set reocurring tasks
-    setInterval(async () => {
+    this.setRefresh(CONFIG.Api.RefreshDelay);
+  }
+
+  public setRefresh(timeout: number): void {
+    if (this.refreshHandle) clearInterval(this.refreshHandle);
+    this.refreshHandle = setInterval(async () => {
       await this.client.apiWorker.populateCache();
       this.syncAllUsers();
-    }, this.refreshDelay * 1000);
+    }, timeout * 1000);
   }
 
   /**
@@ -66,7 +72,10 @@ export default class AutoNameService {
    */
   public async syncAllUsers(): Promise<void> {
     this.logger.info("Attempting batch update of users");
-    this.client.apiWorker.registrantCache.forEach(reg => this.syncOneUser(reg));
+    for (const [, regisrant] of this.client.apiWorker.registrantCache) {
+      await this.syncOneUser(regisrant);
+    }
+    this.logger.info("Batch user update complete");
   }
 
   /**
@@ -184,7 +193,8 @@ export default class AutoNameService {
       return;
     }
 
-    let teamRole = guild.roles.cache.find(role => role.name === teamName);
+    const teamEmoji = countryCodeToEmoji(teamId);
+    let teamRole = guild.roles.cache.find(role => role.unicodeEmoji === teamEmoji);
     if (!teamRole) {
       this.logger.info(`No existing team role, attempting to create [Country: ${teamId}]`);
       teamRole = await this.createTeamRole(teamId, guild);
@@ -199,5 +209,33 @@ export default class AutoNameService {
     } catch (err) {
       this.logger.error(`Failed to assign team role, possible lack of permission [Discord id: ${id}]`, err);
     }
+  }
+
+  private async cleanupTeamRoles(): Promise<void> {
+    const guild = await getGuild(this.client);
+    if (!guild) return;
+
+    let roles;
+    try {
+      roles = await guild.roles.fetch(undefined, { cache: true });
+    } catch {
+      this.logger.warn("Failed to fetch guild role list, aborting team role cleanup");
+      return;
+    }
+
+    const teamRoles = roles.filter(role => role.name.includes("Team"));
+    const seenRoles: string[] = [];
+
+    teamRoles.forEach(async role => {
+      if (seenRoles.includes(role.name)) {
+        try {
+          await role.delete();
+        } catch {
+          this.logger.info(`Failed to delete role [id: ${role.id}]`);
+        }
+      } else {
+        seenRoles.push(role.name);
+      }
+    });
   }
 }

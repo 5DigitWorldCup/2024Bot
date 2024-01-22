@@ -26,7 +26,7 @@ export default <Partial<Command>>{
       if (apiOk) count++;
     }
     await interaction.followUp(
-      successMessage(`Successfully synced ${inlineCode(`${count} of ${toSync.length}`)} organizers`),
+      successMessage(`Successfully synced ${inlineCode(`${count} of ${toSync.length}`)} organizers`, true),
     );
   },
 };

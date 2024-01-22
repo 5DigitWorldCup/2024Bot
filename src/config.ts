@@ -47,20 +47,6 @@ interface Config {
      */
     Channel: string;
   };
-  Logging: {
-    /**
-     * Enable the discord logging transport
-     */
-    Enabled: boolean;
-    /**
-     * General purpose logging channel id
-     */
-    General: string;
-    /**
-     * Verbose logging channel id
-     */
-    Verbose: string;
-  };
 }
 
 import * as cfg from "../config.json";

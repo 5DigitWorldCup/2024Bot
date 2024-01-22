@@ -8,7 +8,7 @@ export default <DiscordEvent>{
   async execute(client: ExtendedClient) {
     this.logger.info(`Logged in as ${client.user?.tag}`);
     client.application?.fetch();
-    await client.apiWorker.populateCache();
-    client.autoNameService.syncAllUsers();
+    // await client.apiWorker.populateCache();
+    // client.autoNameService.syncAllUsers();
   },
 };

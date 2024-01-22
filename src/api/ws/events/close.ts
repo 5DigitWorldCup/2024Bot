@@ -13,7 +13,6 @@ export default <ApiEvent>{
     setTimeout(() => {
       worker.ws = worker.createWebsocket();
       worker.bindEvents(worker.ws, "ws/events");
-      this.logger.info("Bound events to websocket");
     }, reconTimer * 1000);
     worker.nReconAttempts++;
   },

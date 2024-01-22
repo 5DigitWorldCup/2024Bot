@@ -53,7 +53,7 @@ export default class ApiWorker {
    * Creates a fresh `WebSocket` connection
    */
   public createWebsocket(): WebSocket {
-    return new WebSocket(`ws://${CONFIG.Api.BaseUrl}/ws/discord/`, { auth: `Bearer ${CONFIG.Api.PSK}` });
+    return new WebSocket(`wss://${CONFIG.Api.BaseUrl}/ws/discord/`, { auth: `Token ${CONFIG.Api.PSK}` });
   }
 
   /**
@@ -177,7 +177,7 @@ export default class ApiWorker {
       headers: reqHeaders,
     };
     if (Object.keys(data).length !== 0) reqInfo.body = JSON.stringify(data);
-    return await this.safeFetch(`http://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
+    return await this.safeFetch(`https://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
   }
 
   /**

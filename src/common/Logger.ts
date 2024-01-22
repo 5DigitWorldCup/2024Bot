@@ -1,12 +1,8 @@
 import * as winston from "winston";
-import Transport from "winston-transport";
-import { createLogger, transports, format, transport } from "winston";
+import { createLogger, transports, format } from "winston";
 import Module from "module";
 import path from "path";
 import fs from "fs";
-import ExtendedClient from "@discord/ExtendedClient";
-import CONFIG from "@/config";
-import { EmbedBuilder, codeBlock } from "discord.js";
 
 const seperateModName = format(info => {
   info.moduleName = info.metadata.moduleName;
@@ -17,91 +13,6 @@ const seperateModName = format(info => {
 const logDir = path.resolve("logs");
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
-}
-
-enum LogLevels {
-  debug = 0,
-  info = 1,
-  warn = 2,
-  error = 3,
-}
-
-enum LogLevelColors {
-  debug = "LightGrey",
-  info = "Grey",
-  warn = "Orange",
-  error = "Red",
-}
-
-interface LogMessage {
-  level: "debug" | "info" | "warn" | "error";
-  message: string;
-  metadata: any;
-  moduleName: string;
-}
-
-/**
- * Custom winston transport that routes logs through discord channels
- */
-export class DiscordTransport extends Transport {
-  private readonly client: ExtendedClient;
-  private readonly verboseChannelId: string;
-  private readonly generalChannelId: string;
-  /**
-   * Amount of chars in `info.metadata` before truncating
-   */
-  private static readonly MAX_META_CHARS = 1700;
-
-  constructor(opts: transport.TransportStreamOptions & { client: ExtendedClient }) {
-    super(opts);
-    const { client } = opts;
-    this.client = client;
-    this.verboseChannelId = CONFIG.Logging.Verbose;
-    this.generalChannelId = CONFIG.Logging.General;
-  }
-
-  log(info: LogMessage, callback: () => void) {
-    setImmediate(() => {
-      this.emit("logged", info);
-    });
-    // Determine channel from log level
-    const channelId = LogLevels[info.level] >= LogLevels.warn ? this.verboseChannelId : this.generalChannelId;
-    // Build log message
-    const embed = new EmbedBuilder()
-      .setColor(LogLevelColors[info.level])
-      .addFields(
-        { name: "Level", value: info.level.toUpperCase(), inline: true },
-        { name: "Origin", value: info.moduleName, inline: true },
-        { name: "Message", value: info.message },
-      )
-      .setTimestamp();
-
-    if (Object.keys(info.metadata).length > 0) {
-      try {
-        const meta = codeBlock(
-          "json",
-          JSON.stringify(info.metadata, null, "\t").substring(0, DiscordTransport.MAX_META_CHARS),
-        );
-        embed.addFields({ name: "Metadata", value: meta });
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    if (this.client.isReady()) {
-      this.client.channels
-        .fetch(channelId)
-        .then(channel => {
-          if (channel?.isTextBased()) {
-            channel.send({ embeds: [embed] });
-          }
-        })
-        .catch(console.error);
-    }
-    if (callback) {
-      callback();
-    }
-  }
 }
 
 export const parentLogger = createLogger({
