@@ -4,7 +4,7 @@ import Command from "@discord/interfaces/Command";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import fs from "fs";
 import path from "path";
-import CreateLogger, { DiscordTransport, Logger, parentLogger } from "@common/Logger";
+import CreateLogger, { Logger } from "@common/Logger";
 import ApiWorker from "@api/ApiWorker";
 import AutoNameService from "@discord/services/AutoNameService";
 
@@ -16,12 +16,9 @@ export default class ExtendedClient extends Client {
   private logger!: Logger;
   public apiWorker!: ApiWorker;
   public autoNameService!: AutoNameService;
-  public loggingEnabled: boolean;
 
   constructor(options: ClientOptions) {
     super(options);
-    this.loggingEnabled = CONFIG.Logging.Enabled;
-    parentLogger.add(new DiscordTransport({ client: this }));
   }
 
   public async init(): Promise<void> {

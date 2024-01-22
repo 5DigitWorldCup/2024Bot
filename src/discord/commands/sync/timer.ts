@@ -8,9 +8,7 @@ export default <Partial<Command>>{
     const interval = interaction.options.getInteger("interval", true);
     client.autoNameService.setRefresh(interval);
     interaction.followUp(
-      successMessage(`Users will now be synced every ${inlineCode(interval.toString())} seconds`) && {
-        ephemeral: true,
-      },
+      successMessage(`Users will now be synced every ${inlineCode(interval.toString())} seconds`, true),
     );
   },
 };

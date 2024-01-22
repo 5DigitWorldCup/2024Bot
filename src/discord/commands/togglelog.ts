@@ -18,6 +18,6 @@ export default <Command>{
     const logging = !client.loggingEnabled;
     client.loggingEnabled = logging;
     const text = logging ? "Discord logging has been enabled!" : "Discord logging has been disabled!";
-    await interaction.reply(successMessage(text));
+    await interaction.reply(successMessage(text, true));
   },
 };

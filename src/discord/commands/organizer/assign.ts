@@ -25,7 +25,7 @@ export default <Partial<Command>>{
         errorMessage(
           `Failed to find the ${codeBlock("organizer")} discord role!\nTarget user ${userMention(
             member.id,
-          )} is likely flagged as an organizer in the database. Tell them to check on the website. If so: it is safe to grant them the discord role manually`,
+          )} is likely now flagged as an organizer in the database. Tell them to check on the website. If so: it is safe to grant them the discord role manually`,
         ),
       );
       return;

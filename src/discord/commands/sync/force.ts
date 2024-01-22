@@ -7,6 +7,6 @@ export default <Partial<Command>>{
   async execute(interaction: ChatInputCommandInteraction, client: ExtendedClient) {
     await client.apiWorker.populateCache();
     await client.autoNameService.syncAllUsers();
-    interaction.followUp(successMessage("All users have been synced") && { ephemeral: true });
+    interaction.followUp(successMessage("All users have been synced", true));
   },
 };

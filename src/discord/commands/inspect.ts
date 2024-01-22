@@ -39,8 +39,11 @@ export default <Command>{
     if (data) {
       await interaction.followUp({
         embeds: [
-          successEmbed(codeBlock("json", JSON.stringify(data, null, "\t"))).setTitle(`Result for ${key} id ${search}:`),
+          successEmbed(codeBlock("json", JSON.stringify(data, null, "\t")))
+            .setTitle("Inspect result")
+            .setDescription(`Result for ${inlineCode(key)} id: ${inlineCode(search)}`),
         ],
+        ephemeral: true,
       });
     } else {
       await interaction.followUp(
