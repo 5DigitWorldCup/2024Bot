@@ -12,7 +12,7 @@ export default <Command>{
     .addSubcommand(s => s.setName("force").setDescription("Forces an all-users sync for roles and nicknames"))
     .addSubcommand(s =>
       s
-        .setName("timer")
+        .setName("interval")
         .setDescription("Sets the interval for automatic sync")
         .addIntegerOption(o => o.setName("interval").setDescription("Amount of time in seconds").setRequired(true)),
     )
