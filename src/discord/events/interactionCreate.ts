@@ -1,4 +1,4 @@
-import { BaseInteraction, ChatInputCommandInteraction, ContextMenuCommandInteraction, Events } from "discord.js";
+import { BaseInteraction, ChatInputCommandInteraction, Events } from "discord.js";
 import { errorMessage } from "@discord/util/Replies";
 import DiscordEvent from "@discord/interfaces/DiscordEvent";
 import ExtendedClient from "@discord/ExtendedClient";
@@ -9,8 +9,7 @@ export default <DiscordEvent>{
   async execute(interaction: BaseInteraction): Promise<void> {
     // Ignore interactions that are:
     // Created by bots | Not in a guild | Not our command format
-    if (interaction.user.bot || !interaction.inGuild()) return;
-    if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand()) return;
+    if (interaction.user.bot || !interaction.inGuild() || !interaction.isChatInputCommand()) return;
 
     const client = interaction.client as ExtendedClient;
     const command = client.commands.get(interaction.commandName);
@@ -31,13 +30,16 @@ export default <DiscordEvent>{
   },
 };
 
-function formatLogString(interaction: ChatInputCommandInteraction | ContextMenuCommandInteraction): string {
+function formatLogString(interaction: ChatInputCommandInteraction): string {
   const {
     commandName,
     user: { tag },
   } = interaction;
+  const commandString = interaction.options.getSubcommand()
+    ? `${commandName}:${interaction.options.getSubcommand()}`
+    : commandName;
   if (interaction.channel && interaction.inGuild()) {
-    return `[Name: ${commandName} | Caller: ${tag} | Channel: ${interaction.channel.name}]`;
+    return `[Name: ${commandString} | Caller: ${tag} | Channel: ${interaction.channel.name}]`;
   } else {
     return `[Name: ${commandName} | Caller: ${tag} | Channel: undefined]`;
   }

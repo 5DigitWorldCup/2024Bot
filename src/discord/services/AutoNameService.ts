@@ -45,7 +45,7 @@ export default class AutoNameService {
   public async announceRegistrant(regisrant: Registrant): Promise<void> {
     const channel = await this.client.channels.fetch(CONFIG.Registrant.Channel, { cache: true });
     if (!channel) {
-      this.logger.error("Could not find registrant announce Channel, skipping welcome embed");
+      this.logger.error("Failed to find registrant announce Channel, skipping welcome embed");
       return;
     }
     const flag = countryCodeToEmoji(regisrant.osu_flag) + " ";
@@ -109,7 +109,7 @@ export default class AutoNameService {
     const { guild, id } = member;
     const registrantRole = await guild.roles.fetch(CONFIG.Registrant.Role, { cache: true });
     if (!registrantRole) {
-      this.logger.warn(`Could not find Registrant Role instance, skipping role assignment [Discord id: ${id}]`);
+      this.logger.warn(`Failed to find Registrant Role instance, skipping role assignment [Discord id: ${id}]`);
       return;
     }
 
@@ -131,8 +131,8 @@ export default class AutoNameService {
     if (!isOrganizer && hasRole) {
       const apiOk = await ApiWorker.updateOrganizer(member.id, true);
       apiOk
-        ? this.logger.info(`Auto set an organizer on register [Discord id: ${member.id}]`)
-        : this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
+        ? this.logger.info(`Granted organizer permissions [Discord id: ${member.id}]`)
+        : this.logger.warn(`Failed to update organizer status [Discord id: ${member.id}]`);
     }
     if (isOrganizer && !hasRole) func = member.roles.add;
     if (hasRole && remove) func = member.roles.remove;
@@ -141,7 +141,7 @@ export default class AutoNameService {
     const { guild, id } = member;
     const organizerRole = await guild.roles.fetch(CONFIG.Organizer.Role, { cache: true });
     if (!organizerRole) {
-      this.logger.warn(`Could not find Organizer Role instance, skipping role assignment [Discord id: ${id}]`);
+      this.logger.warn(`Failed to find Organizer Role instance, skipping role assignment [Discord id: ${id}]`);
       return;
     }
 
