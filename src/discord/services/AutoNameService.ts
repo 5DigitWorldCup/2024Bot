@@ -5,6 +5,7 @@ import ExtendedClient from "@discord/ExtendedClient";
 import { getGuild, getMember } from "@discord/util/Wrappers";
 import CONFIG from "@/config";
 import { Guild, GuildMember, Role, bold } from "discord.js";
+import ApiWorker from "@api/ApiWorker";
 
 export default class AutoNameService {
   private readonly logger = Logger(module);
@@ -61,7 +62,7 @@ export default class AutoNameService {
       this.setOneNickname(member, registrant.osu_username);
       this.setOneRegistrantRole(member, remove);
       this.setOneOrganizerRole(member, registrant.is_organizer, remove);
-      this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
+      // this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
     } catch (err) {
       this.logger.error("Failed to complete update of discord member values, an uncaught error occurred", err);
     }
@@ -120,6 +121,10 @@ export default class AutoNameService {
     const hasRole = member.roles.cache.has(CONFIG.Organizer.Role);
     let func;
 
+    if (!isOrganizer && hasRole) {
+      const apiOk = await ApiWorker.updateOrganizer(member.id, isOrganizer);
+      if (!apiOk) this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
+    }
     if (isOrganizer && !hasRole) func = member.roles.add;
     if (hasRole && remove) func = member.roles.remove;
     if (!func) return;
