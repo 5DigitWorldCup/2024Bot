@@ -10,12 +10,6 @@ import ApiWorker from "@api/ApiWorker";
 export default class AutoNameService {
   private readonly logger = Logger(module);
   public readonly client: ExtendedClient;
-  /**
-   * Delay for rebuilding the registrant cache and syncing user in seconds
-   *
-   * Default -- 900 seconds (15 minutes)
-   */
-  private readonly refreshDelay = CONFIG.Api.RefreshDelay;
   private refreshHandle!: NodeJS.Timeout;
   constructor(client: ExtendedClient) {
     this.client = client;
@@ -54,7 +48,7 @@ export default class AutoNameService {
     // Fetch member instance
     const member = await getMember(registrant.discord_user_id, this.client);
     if (!member) {
-      this.logger.warn("Failed to find guildMember, skipping user sync");
+      this.logger.warn(`Failed to get guildMember, skipping user sync [Discord id: ${registrant.discord_user_id}]`);
       return;
     }
     // Big try/catch here to avoid any crashes with missing perms
@@ -123,7 +117,9 @@ export default class AutoNameService {
 
     if (!isOrganizer && hasRole) {
       const apiOk = await ApiWorker.updateOrganizer(member.id, isOrganizer);
-      if (!apiOk) this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
+      apiOk
+        ? this.logger.info(`Auto set an organizer on register [Discord id: ${member.id}]`)
+        : this.logger.warn(`Failure to update organizer status [Discord id: ${member.id}]`);
     }
     if (isOrganizer && !hasRole) func = member.roles.add;
     if (hasRole && remove) func = member.roles.remove;
