@@ -35,9 +35,12 @@ function formatLogString(interaction: ChatInputCommandInteraction): string {
     commandName,
     user: { tag },
   } = interaction;
-  const commandString = interaction.options.getSubcommand()
-    ? `${commandName}:${interaction.options.getSubcommand()}`
-    : commandName;
+  let commandString;
+  try {
+    commandString = `${commandName}:${interaction.options.getSubcommand()}`;
+  } catch {
+    commandString = commandName;
+  }
   if (interaction.channel && interaction.inGuild()) {
     return `[Name: ${commandString} | Caller: ${tag} | Channel: ${interaction.channel.name}]`;
   } else {
