@@ -11,18 +11,31 @@ export default class AutoNameService {
   private readonly logger = Logger(module);
   public readonly client: ExtendedClient;
   private refreshHandle!: NodeJS.Timeout;
+  private refreshTimeout: number;
+  private nextRefresh!: number;
   constructor(client: ExtendedClient) {
     this.client = client;
     // Set reocurring tasks
-    this.setRefresh(CONFIG.Api.RefreshDelay);
+    this.refreshTimeout = CONFIG.Api.RefreshDelay;
+    this.setRefresh(this.refreshTimeout);
   }
 
   public setRefresh(timeout: number): void {
+    this.refreshTimeout = timeout;
+    this.nextRefresh = Date.now() + timeout * 1000;
     if (this.refreshHandle) clearInterval(this.refreshHandle);
     this.refreshHandle = setInterval(async () => {
       await this.client.apiWorker.populateCache();
-      this.syncAllUsers();
+      await this.syncAllUsers();
+      this.nextRefresh = Date.now() + timeout * 1000;
     }, timeout * 1000);
+  }
+
+  /**
+   * Getter for `nextRefresh` timestamp
+   */
+  public getNextRefresh(): number {
+    return this.nextRefresh;
   }
 
   /**
