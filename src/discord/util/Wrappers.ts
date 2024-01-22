@@ -27,9 +27,7 @@ export async function getMember(id: string, client: ExtendedClient): Promise<Gui
   let member;
   try {
     member = await guild.members.fetch({ user: id, cache: true });
-  } catch (err) {
-    if (err instanceof Error) logger.warn("Failed to get guildMember instance", err.message);
-    logger.warn("Failed to get guildMember instance");
+  } catch {
     return;
   }
   return member;
