@@ -24,15 +24,15 @@ export default <Command>{
     }
 
     const stats = {
-      "Bot Ready At": client.readyTimestamp ? time(client.readyTimestamp / 1000) : "unknown",
+      "Bot Ready At": client.readyTimestamp ? time(Math.floor(client.readyTimestamp / 1000)) : "unknown",
       "Bot Uptime": client.uptime ? formatMsToHhMmSs(client.uptime) : "unknown",
       "Bot Latency": `${Date.now() - interaction.createdTimestamp} ms`,
       "Discord Ws Status": Status[client.ws.status],
       "Discord Ws Latency": `${client.ws.ping} ms`,
-      "Api Ws Latency": ApiStatus[client.apiWorker.ws.readyState],
+      "Api Ws Status": ApiStatus[client.apiWorker.ws.readyState],
       "Registrant Cache Size": client.apiWorker.registrantCache.size.toString(),
       "Registrant Next Batch Update": time(
-        (client.autoNameService.getNextRefresh() - Date.now()) / 1000,
+        Math.floor((client.autoNameService.getNextRefresh() - Date.now()) / 1000),
         TimestampStyles.RelativeTime,
       ),
     };
