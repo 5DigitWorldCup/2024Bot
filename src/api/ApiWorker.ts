@@ -160,6 +160,18 @@ export default class ApiWorker {
     }
   }
 
+  public static async updateStaff(discordId: string, isStaff: boolean): Promise<boolean> {
+    const res = await this.sendRequest("PATCH", `/registrants/${discordId}/?key=discord`, {
+      // eslint-disable-next-line camelcase
+      is_staff: isStaff,
+    });
+    if (Object.hasOwn(res, "msg")) {
+      const match = isStaff ? "True" : "False";
+      return res.msg.includes(match);
+    }
+    return false;
+  }
+
   /**
    * Send a request to the 2024API
    * @param method HTTP Method to use

@@ -47,6 +47,12 @@ interface Config {
      */
     Channel: string;
   };
+  Staff: {
+    /**
+     * Staff role id
+     */
+    Role: string;
+  };
 }
 
 import * as cfg from "../config.json";
