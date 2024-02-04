@@ -32,7 +32,7 @@ export default <Command>{
       "Api Ws Status": ApiStatus[client.apiWorker.ws.readyState],
       "Registrant Cache Size": client.apiWorker.registrantCache.size.toString(),
       "Registrant Next Batch Update": time(
-        Math.floor((client.autoNameService.getNextRefresh() - Date.now()) / 1000),
+        Math.floor(client.autoNameService.getNextRefresh() / 1000),
         TimestampStyles.RelativeTime,
       ),
     };
