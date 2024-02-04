@@ -1,8 +1,9 @@
+/* eslint-disable camelcase */
 import type { Registrant } from "@api/types/Registrant";
 import { countryCodeToFull, countryCodeToEmoji } from "@api/util/Countries";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
-import { getGuild, getMember } from "@discord/util/Wrappers";
+import { getGuild, getMember, isStaff } from "@discord/util/Wrappers";
 import CONFIG from "@/config";
 import { Guild, GuildMember, Role, bold } from "discord.js";
 import ApiWorker from "@api/ApiWorker";
@@ -57,12 +58,18 @@ export default class AutoNameService {
    * Set the target registrant's discord profile to use the registrant role and their osu! username
    * @param registrant The raw data object representing a player
    */
-  public async syncOneUser(registrant: Registrant, remove: boolean = false): Promise<void> {
+  public async syncOneUser(registrant: Registrant, remove: boolean = false): Promise<boolean> {
     // Fetch member instance
     const member = await getMember(registrant.discord_user_id, this.client);
-    if (!member) {
-      this.logger.warn(`Failed to get guildMember, skipping user sync [Discord id: ${registrant.discord_user_id}]`);
-      return;
+    if (!member) return false;
+    // Filter out any future and existing staff members
+    if (isStaff(member)) {
+      await this.updateOneStaff(member);
+      this.logger.info(`Staff member filtered [Discord id: ${member.id}]`);
+      // Remove any existing roles if staff
+      remove = true;
+      // Reset username
+      registrant.osu_username = "";
     }
     // Big try/catch here to avoid any crashes with missing perms
     try {
@@ -72,7 +79,9 @@ export default class AutoNameService {
       // this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
     } catch (err) {
       this.logger.error("Failed to complete update of discord member values, an uncaught error occurred", err);
+      return false;
     }
+    return true;
   }
 
   /**
@@ -80,10 +89,25 @@ export default class AutoNameService {
    */
   public async syncAllUsers(): Promise<void> {
     this.logger.info("Attempting batch update of users");
+    let count = 0;
     for (const [, regisrant] of this.client.apiWorker.registrantCache) {
-      await this.syncOneUser(regisrant);
+      const ok = await this.syncOneUser(regisrant);
+      ok ? null : count++;
     }
-    this.logger.info("Batch user update complete");
+    this.logger.info(`Batch user update complete [Skipped users: ${count}]`);
+  }
+
+  /**
+   * Will flag a user as staff in the database and remove any tourney related roles
+   */
+  private async updateOneStaff(member: GuildMember): Promise<void> {
+    const { id } = member;
+    const apiOk = await ApiWorker.updateStaff(id, true);
+    apiOk
+      ? this.logger.info(`Updated one staff member [Discord id: ${id}]`)
+      : this.logger.warn(`Failed to update staff member [Discord id: ${id}]`);
+    // Remove staff member from cache
+    this.client.apiWorker.registrantCache.delete(id);
   }
 
   /**

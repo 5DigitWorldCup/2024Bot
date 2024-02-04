@@ -18,5 +18,8 @@
   "Registrant": {
     "Role": "{RoleId}",
     "Channel": "{ChannelId}"
+  },
+  "Staff": {
+    "Role": "{RoleId}"
   }
 }

@@ -26,9 +26,20 @@ export async function getMember(id: string, client: ExtendedClient): Promise<Gui
   if (!guild) return;
   let member;
   try {
-    member = await guild.members.fetch({ user: id, cache: true });
+    // Try cache first, then fetch from discord
+    member = guild.members.cache.get(id);
+    if (!member) {
+      member = await guild.members.fetch({ user: id, cache: true });
+    }
   } catch {
     return;
   }
   return member;
+}
+
+/**
+ * Checks if a member is a staff member
+ */
+export function isStaff(member: GuildMember): boolean {
+  return member.roles.cache.has(CONFIG.Staff.Role);
 }
