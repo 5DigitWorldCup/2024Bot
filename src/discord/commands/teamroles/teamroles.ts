@@ -17,11 +17,7 @@ export default <Command>{
       s.setName("toggle").setDescription("Enable or disable the feature. Uses a confirmation prompt for safety."),
     )
     .addSubcommand(s =>
-      s
-        .setName("cleanup")
-        .setDescription(
-          "Deletes all but one instance of each team role from the server. Use this if the bot somehow makes multiple for any given teams.",
-        ),
+      s.setName("cleanup").setDescription("Deletes all but one instance of each team role from the server."),
     )
     .addSubcommand(s => s.setName("revert").setDescription("Delete all team roles from the server.")),
   async execute(interaction: ChatInputCommandInteraction, client: ExtendedClient): Promise<void> {
