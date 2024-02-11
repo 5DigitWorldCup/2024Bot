@@ -1,6 +1,6 @@
 import type { RegistrantPage } from "@api/types/RegistrantPage";
 import type { Registrant } from "./types/Registrant";
-import ApiWorker from "@api/ApiWorker";
+import ApiWorker, { headersWithAuth } from "@api/ApiWorker";
 import Logger from "@common/Logger";
 import { RegistrantPageSchema } from "@api/schema/RegistrantPageSchema";
 
@@ -23,7 +23,10 @@ export default class RegistrantPager {
    */
   public async getNextPage(): Promise<boolean> {
     if (!this.morePages || !this.pageData.next) return false;
-    const res = await ApiWorker.safeFetch(this.pageData.next, { method: "GET" });
+    const res = await ApiWorker.safeFetch(this.pageData.next, {
+      method: "GET",
+      headers: headersWithAuth,
+    });
     const parsed = RegistrantPageSchema.safeParse(res);
     if (!parsed.success) {
       this.logger.warn("Received bad data while advancing pages");

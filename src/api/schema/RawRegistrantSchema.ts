@@ -7,9 +7,10 @@ export const RawRegistrantSchema = RegistrantSchema.extend({
   user_id: z.number(),
   discord_username: z.string(),
   osu_user_id: z.number(),
-  team: z.string(),
-  osu_stats_updated: z.string(),
   in_backup_roster: z.boolean(),
+  is_captain: z.boolean(),
+  osu_stats_updated: z.string(),
   rank_standard: z.number(),
   rank_standard_bws: z.number(),
+  team: z.string(),
 });

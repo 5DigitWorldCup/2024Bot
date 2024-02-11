@@ -1,4 +1,4 @@
-import { Guild, GuildMember } from "discord.js";
+import { Collection, Guild, GuildMember, Role } from "discord.js";
 import ExtendedClient from "@discord/ExtendedClient";
 import CONFIG from "@/config";
 import Logger from "@common/Logger";
@@ -35,6 +35,21 @@ export async function getMember(id: string, client: ExtendedClient): Promise<Gui
     return;
   }
   return member;
+}
+
+/**
+ * Fetch all roles from the guild
+ */
+export async function getAllRoles(client: ExtendedClient): Promise<Collection<string, Role> | undefined> {
+  const guild = await getGuild(client);
+  if (!guild) return;
+  let roles;
+  try {
+    roles = await guild.roles.fetch(undefined, { cache: true });
+  } catch {
+    return;
+  }
+  return roles;
 }
 
 /**

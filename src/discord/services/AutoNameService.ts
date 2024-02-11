@@ -3,7 +3,7 @@ import type { Registrant } from "@api/types/Registrant";
 import { countryCodeToFull, countryCodeToEmoji } from "@api/util/Countries";
 import Logger from "@common/Logger";
 import ExtendedClient from "@discord/ExtendedClient";
-import { getGuild, getMember, isStaff } from "@discord/util/Wrappers";
+import { getAllRoles, getMember, isStaff } from "@discord/util/Wrappers";
 import CONFIG from "@/config";
 import { Guild, GuildMember, Role, bold } from "discord.js";
 import ApiWorker from "@api/ApiWorker";
@@ -14,6 +14,7 @@ export default class AutoNameService {
   private refreshHandle!: NodeJS.Timeout;
   private refreshTimeout: number;
   private nextRefresh!: number;
+  private teamRolesEnabled: boolean = false;
   constructor(client: ExtendedClient) {
     this.client = client;
     // Set reocurring tasks
@@ -21,6 +22,10 @@ export default class AutoNameService {
     this.setRefresh(this.refreshTimeout);
   }
 
+  /**
+   * Sets the refresh interval
+   * @param timeout Interval for refresh in seconds
+   */
   public setRefresh(timeout: number): void {
     this.refreshTimeout = timeout;
     this.nextRefresh = Date.now() + timeout * 1000;
@@ -37,6 +42,20 @@ export default class AutoNameService {
    */
   public getNextRefresh(): number {
     return this.nextRefresh;
+  }
+
+  /**
+   * Setter for `teamRolesEnabled` flag
+   */
+  public setTeamRolesEnabled(enabled: boolean): void {
+    this.teamRolesEnabled = enabled;
+  }
+
+  /**
+   * Getter for `teamRolesEnabled` flag
+   */
+  public getTeamRolesEnabled(): boolean {
+    return this.teamRolesEnabled;
   }
 
   /**
@@ -76,7 +95,7 @@ export default class AutoNameService {
       this.setOneNickname(member, registrant.osu_username);
       this.setOneRegistrantRole(member, remove);
       this.setOneOrganizerRole(member, registrant.is_organizer, remove);
-      // this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
+      if (this.teamRolesEnabled) this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
     } catch (err) {
       this.logger.error("Failed to complete update of discord member values, an uncaught error occurred", err);
       return false;
@@ -95,6 +114,57 @@ export default class AutoNameService {
       ok ? null : count++;
     }
     this.logger.info(`Batch user update complete [Skipped users: ${count}]`);
+  }
+
+  /**
+   * Deletes all but one instance of each team role from the server
+   */
+  public async cleanupTeamRoles(): Promise<boolean> {
+    const roles = await getAllRoles(this.client);
+    if (!roles) {
+      this.logger.warn("Failed to fetch guild role list, aborting team role cleanup");
+      return false;
+    }
+
+    const teamRoles = roles.filter(role => role.name.includes("Team"));
+    const seenRoles: string[] = [];
+
+    for (const [, role] of teamRoles) {
+      if (seenRoles.includes(role.name)) {
+        try {
+          await role.delete("Cleanup team roles");
+        } catch {
+          this.logger.info(`Failed to delete team role [id: ${role.id}]`);
+        }
+      } else {
+        seenRoles.push(role.name);
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Deletes all team roles from the server
+   */
+  public async deleteAllTeamRoles(): Promise<boolean> {
+    const roles = await getAllRoles(this.client);
+    if (!roles) {
+      this.logger.warn("Failed to fetch guild role list, aborting team role bulk deletion");
+      return false;
+    }
+
+    const teamRoles = roles.filter(role => role.name.includes("Team"));
+    let errCount = 0;
+    for (const [, role] of teamRoles) {
+      try {
+        await role.delete("Delete all team roles");
+      } catch {
+        this.logger.info(`Failed to delete team role [id: ${role.id}]`);
+        errCount++;
+      }
+    }
+    this.logger.info(`Successfully deleted all team roles [Skipped roles: ${errCount}]`);
+    return true;
   }
 
   /**
@@ -210,7 +280,7 @@ export default class AutoNameService {
     const hasRole = member.roles.cache.find(role => role.name.includes("Team")) ?? false;
     const { guild, id } = member;
 
-    // Remove role if removing
+    // Remove role if remove flag set
     if (hasRole && remove) {
       const teamRole = member.roles.cache.find(role => role.name.includes("Team"));
       if (!teamRole) return;
@@ -218,7 +288,7 @@ export default class AutoNameService {
         await member.roles.remove(teamRole);
         return;
       } catch (err) {
-        this.logger.warn(`Failed to remove team role, possible lack of permission [Discord id: ${id}]`);
+        this.logger.warn(`Failed to remove team role, possible lack of permission [Discord id: ${id}]`, err);
       }
       return;
     }
@@ -247,33 +317,5 @@ export default class AutoNameService {
     } catch (err) {
       this.logger.error(`Failed to assign team role, possible lack of permission [Discord id: ${id}]`, err);
     }
-  }
-
-  private async cleanupTeamRoles(): Promise<void> {
-    const guild = await getGuild(this.client);
-    if (!guild) return;
-
-    let roles;
-    try {
-      roles = await guild.roles.fetch(undefined, { cache: true });
-    } catch {
-      this.logger.warn("Failed to fetch guild role list, aborting team role cleanup");
-      return;
-    }
-
-    const teamRoles = roles.filter(role => role.name.includes("Team"));
-    const seenRoles: string[] = [];
-
-    teamRoles.forEach(async role => {
-      if (seenRoles.includes(role.name)) {
-        try {
-          await role.delete();
-        } catch {
-          this.logger.info(`Failed to delete role [id: ${role.id}]`);
-        }
-      } else {
-        seenRoles.push(role.name);
-      }
-    });
   }
 }

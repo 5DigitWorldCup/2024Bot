@@ -180,13 +180,9 @@ export default class ApiWorker {
    * @returns Parsed json from response body
    */
   public static async sendRequest(method: "GET" | "POST" | "PATCH", endpoint: string, data: object = {}): Promise<any> {
-    const reqHeaders = new Headers();
-    reqHeaders.append("Content-Type", "application/json");
-    reqHeaders.append("Authorization", `Token ${CONFIG.Api.PSK}`);
-
     const reqInfo: Partial<RequestInit> = {
       method: method,
-      headers: reqHeaders,
+      headers: headersWithAuth,
     };
     if (Object.keys(data).length !== 0) reqInfo.body = JSON.stringify(data);
     return await this.safeFetch(`https://${CONFIG.Api.BaseUrl}${endpoint}`, reqInfo);
@@ -210,3 +206,8 @@ export default class ApiWorker {
     return await res.json();
   }
 }
+
+export const headersWithAuth = new Headers([
+  ["Content-Type", "application/json"],
+  ["Authorization", `Token ${CONFIG.Api.PSK}`],
+]);
