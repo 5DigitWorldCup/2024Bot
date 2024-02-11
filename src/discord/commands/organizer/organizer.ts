@@ -22,16 +22,16 @@ export default <Command>{
     )
     .addSubcommand(s => s.setName("sync").setDescription("Syncs users with organizer in the Discord to the database")),
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
-    // Make sure we have permission to manage roles
-    if (!interaction.appPermissions?.has(PermissionFlagsBits.ManageRoles, true)) {
-      this.logger.error(`Client missing permissions [Command: ${this.data.name} | Permissions: ManageRoles]`);
-      await interaction.reply(appMissingPermsError(["ManageRoles"]) && { ephemeral: true });
-      return;
-    }
     // Only hardcoded user ids will have access to this command
     if (!CONFIG.Organizer.Whitelist.includes(interaction.user.id)) {
       this.logger.warn(`User missing permission [Command: ${this.data.name} | User: ${interaction.user.tag}]`);
       await interaction.reply(errorMessage("You do not have permission to use this command!") && { ephemeral: true });
+      return;
+    }
+    // Make sure we have permission to manage roles
+    if (!interaction.appPermissions?.has(PermissionFlagsBits.ManageRoles, true)) {
+      this.logger.error(`Client missing permissions [Command: ${this.data.name} | Permissions: ManageRoles]`);
+      await interaction.reply(appMissingPermsError(["ManageRoles"]) && { ephemeral: true });
       return;
     }
     // Possible dropped interactions using `fetch`
