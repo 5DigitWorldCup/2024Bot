@@ -10,7 +10,6 @@ import type { RawRegistrant } from "@api/types/RawRegistrant";
 import type ExtendedClient from "@discord/ExtendedClient";
 import { Collection } from "discord.js";
 import { RegistrantPageSchema } from "@api/schema/RegistrantPageSchema";
-import RegistrantPager from "@api/RegistrantPager";
 import { RawRegistrantSchema } from "@api/schema/RawRegistrantSchema";
 import { EventEmitter } from "events";
 
@@ -83,25 +82,13 @@ export default class ApiWorker {
    */
   public async populateCache(): Promise<void> {
     this.logger.info("Populating registrant cache");
-    const pager = await ApiWorker.getAllRegistrants();
-    if (!pager) {
-      this.logger.warn("Failed to obtain pager, aborting cache population");
+    const registrants = await ApiWorker.getAllRegistrants();
+    if (!registrants) {
+      this.logger.warn("Failed to obtain registrants, aborting cache population");
       return;
     }
     const newCache = new Collection<string, Registrant>();
-    // For all of 2 minutes that we have less than 100 regs or whatever the default page size is
-    const data = pager.getRegistrants();
-    data.forEach(reg => newCache.set(reg.discord_user_id, reg));
-    // Scroll pages
-    while (pager.morePages) {
-      const ok = await pager.getNextPage();
-      if (!ok) {
-        this.logger.warn("Could not advance pages, aborting cache population");
-        return;
-      }
-      const data = pager.getRegistrants();
-      data.forEach(reg => newCache.set(reg.discord_user_id, reg));
-    }
+    registrants.forEach(reg => newCache.set(reg.discord_user_id, reg));
     this.registrantCache = newCache;
   }
 
@@ -131,11 +118,11 @@ export default class ApiWorker {
    * Queries the Api for all registrants for batch updates
    * @returns An instance of a wrapper class for pagination
    */
-  public static async getAllRegistrants(): Promise<RegistrantPager | undefined> {
-    const res = await this.sendRequest("GET", "/registrants/");
+  public static async getAllRegistrants(): Promise<Registrant[] | undefined> {
+    const res = await this.sendRequest("GET", "/registrants/?limit=9999");
     const parsed = RegistrantPageSchema.safeParse(res);
     if (parsed.success) {
-      return new RegistrantPager(parsed.data);
+      return parsed.data.results;
     } else {
       Logger(module).error(`Received invalid data from api`);
     }

@@ -17,6 +17,7 @@ export default <ApiEvent>{
       in_roster: false,
       team_id: "WYSI",
       osu_flag: "WYSI",
+      is_captain: false,
     };
     // Revert user roles
     worker.client.autoNameService.syncOneUser(dummyRegistrant, true);

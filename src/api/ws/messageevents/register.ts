@@ -21,6 +21,7 @@ export default <ApiEvent>{
       osu_flag: d.osu_flag,
       team_id: "WYSI",
       in_roster: false,
+      is_captain: false,
     };
     // Add new registrants to the cache
     worker.registrantCache.set(fullRegistrant.discord_user_id, fullRegistrant);

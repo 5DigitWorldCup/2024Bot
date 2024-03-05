@@ -5,4 +5,5 @@ import { WsRegistrantSchema } from "@api/schema/WsRegistrantSchema";
 export const RegistrantSchema = WsRegistrantSchema.extend({
   team_id: z.string(),
   in_roster: z.boolean(),
+  is_captain: z.boolean(),
 });
