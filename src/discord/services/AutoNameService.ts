@@ -96,7 +96,7 @@ export default class AutoNameService {
       this.setOneRegistrantRole(member, remove);
       this.setOneOrganizerRole(member, registrant.is_organizer, remove);
       if (this.teamRolesEnabled) {
-        this.setOnePlayerRole(member, remove);
+        this.setOnePlayerRole(member, registrant.in_roster, remove);
         this.setOneCaptainRole(member, registrant.is_captain, remove);
         this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
       }
@@ -330,6 +330,8 @@ export default class AutoNameService {
     const hasRole = member.roles.cache.has(CONFIG.TeamRoles.Captain);
     const func = remove ? member.roles.remove : member.roles.add;
     if (isCaptain && hasRole) return;
+    // Patching this quickly but this means role removal won't work
+    if (!isCaptain) return;
     if (remove && !hasRole) return;
 
     const { guild, id } = member;
@@ -349,8 +351,10 @@ export default class AutoNameService {
   /**
    * Add player role to a user
    */
-  private async setOnePlayerRole(member: GuildMember, remove: boolean = false) {
+  private async setOnePlayerRole(member: GuildMember, inRoster: boolean, remove: boolean = false) {
     if (!remove && member.roles.cache.has(CONFIG.TeamRoles.Player)) return;
+    // Patching this quickly but this means role removal won't work
+    if (!inRoster) return;
     const func = remove ? member.roles.remove : member.roles.add;
 
     const { guild, id } = member;
