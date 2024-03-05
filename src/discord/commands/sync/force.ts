@@ -1,12 +1,12 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Message } from "discord.js";
 import Command from "@discord/interfaces/Command";
 import ExtendedClient from "@discord/ExtendedClient";
-import { successMessage } from "@/discord/util/Replies";
+import { successEmbed } from "@/discord/util/Replies";
 
 export default <Partial<Command>>{
-  async execute(interaction: ChatInputCommandInteraction, client: ExtendedClient) {
+  async execute(interaction: ChatInputCommandInteraction, client: ExtendedClient, message: Message) {
     await client.apiWorker.populateCache();
     await client.autoNameService.syncAllUsers();
-    interaction.followUp(successMessage("All users have been synced", true));
+    if (message.editable) message.edit({ embeds: [successEmbed("All users have been synced")] });
   },
 };

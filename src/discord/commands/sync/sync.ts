@@ -24,7 +24,7 @@ export default <Command>{
       await interaction.reply(errorMessage("You do not have permission to use this command!"));
       return;
     }
-    await interaction.deferReply({ ephemeral: true });
+    const msg = await interaction.deferReply({ ephemeral: true, fetchReply: true });
     // Pull subcommand implementation and execute
     const subcommand = interaction.options.getSubcommand(true);
     const subModule = await import(`./${subcommand}`);
@@ -35,6 +35,6 @@ export default <Command>{
       await interaction.followUp(errorMessage("This command hasn't been implemented yet!"));
       return;
     }
-    c.execute(interaction, client);
+    c.execute(interaction, client, msg);
   },
 };
