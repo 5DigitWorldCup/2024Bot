@@ -95,7 +95,11 @@ export default class AutoNameService {
       this.setOneNickname(member, registrant.osu_username);
       this.setOneRegistrantRole(member, remove);
       this.setOneOrganizerRole(member, registrant.is_organizer, remove);
-      if (this.teamRolesEnabled) this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
+      if (this.teamRolesEnabled) {
+        this.setOnePlayerRole(member, remove);
+        this.setOneCaptainRole(member, registrant.is_captain, remove);
+        this.setOneTeamRole(member, registrant.in_roster, registrant.team_id, remove);
+      }
     } catch (err) {
       this.logger.error("Failed to complete update of discord member values, an uncaught error occurred", err);
       return false;
@@ -316,6 +320,50 @@ export default class AutoNameService {
       await member.roles.add(teamRole);
     } catch (err) {
       this.logger.error(`Failed to assign team role, possible lack of permission [Discord id: ${id}]`, err);
+    }
+  }
+
+  /**
+   * Add captain role to a user
+   */
+  private async setOneCaptainRole(member: GuildMember, isCaptain: boolean, remove: boolean = false) {
+    const hasRole = member.roles.cache.has(CONFIG.TeamRoles.Captain);
+    const func = remove ? member.roles.remove : member.roles.add;
+    if (isCaptain && hasRole) return;
+    if (remove && !hasRole) return;
+
+    const { guild, id } = member;
+    const captainRole = await guild.roles.fetch(CONFIG.TeamRoles.Captain, { cache: true });
+    if (!captainRole) {
+      this.logger.warn(`Failed to find Captain Role instance, skipping role assignment [Discord id: ${id}]`);
+      return;
+    }
+
+    try {
+      await func.bind(member.roles)(captainRole, "Auto Role Service");
+    } catch (err) {
+      this.logger.error(`Failed to assign Registrant role, possible lack of permission [Discord id: ${id}]`, err);
+    }
+  }
+
+  /**
+   * Add player role to a user
+   */
+  private async setOnePlayerRole(member: GuildMember, remove: boolean = false) {
+    if (!remove && member.roles.cache.has(CONFIG.TeamRoles.Player)) return;
+    const func = remove ? member.roles.remove : member.roles.add;
+
+    const { guild, id } = member;
+    const playerRole = await guild.roles.fetch(CONFIG.TeamRoles.Player, { cache: true });
+    if (!playerRole) {
+      this.logger.warn(`Failed to find Player Role instance, skipping role assignment [Discord id: ${id}]`);
+      return;
+    }
+
+    try {
+      await func.bind(member.roles)(playerRole, "Auto Role Service");
+    } catch (err) {
+      this.logger.error(`Failed to assign Player role, possible lack of permission [Discord id: ${id}]`, err);
     }
   }
 }

@@ -53,6 +53,16 @@ interface Config {
      */
     Role: string;
   };
+  TeamRoles: {
+    /**
+     * Player role id
+     */
+    Player: string;
+    /**
+     * Captain role id
+     */
+    Captain: string;
+  };
 }
 
 import * as cfg from "../config.json";

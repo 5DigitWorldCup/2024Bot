@@ -18,11 +18,13 @@ export default <Partial<Command>>{
     const currentlyEnabled = client.autoNameService.getTeamRolesEnabled();
     const disabledText = bold("disabled");
     const enabledText = bold("enabled");
+    const disabledVerb = bold("disable");
+    const enabledVerb = bold("enable");
     // Extra warning text for enabling feature
-    const enabledExtraText = `\n\nBe aware that enabling this feature will cause changes to take effect on the next batch reset. Team roles for all teams with created rosters will be created and assigned to members. This will occur ${time(
+    const enabledExtraText = `\n\nBe aware that enabling this feature will cause changes to take effect on the next batch update. This will occur ${time(
       Math.floor(client.autoNameService.getNextRefresh() / 1000),
       TimestampStyles.RelativeTime,
-    )}`;
+    )}. Team roles for all teams with created rosters will be created and assigned to members.`;
 
     // Button components
     const confirmButton = new ButtonBuilder().setCustomId("confirm").setLabel("Confirm").setStyle(ButtonStyle.Success);
@@ -34,7 +36,7 @@ export default <Partial<Command>>{
       .setDescription(
         `The creation and assignment of team roles is currently ${currentlyEnabled ? enabledText : disabledText}!${
           currentlyEnabled ? "" : enabledExtraText
-        }\n\nAre you sure you want to ${!currentlyEnabled ? enabledText : disabledText} this feature?`,
+        }\n\nAre you sure you want to ${!currentlyEnabled ? enabledVerb : disabledVerb} this feature?`,
       );
 
     // Send initial message with warning and confirmation buttons

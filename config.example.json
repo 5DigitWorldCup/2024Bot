@@ -21,5 +21,9 @@
   },
   "Staff": {
     "Role": "{RoleId}"
+  },
+  "TeamRoles": {
+    "Player": "{RoleId}",
+    "Captain": "{RoleId}"
   }
 }
